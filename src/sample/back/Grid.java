@@ -9,19 +9,36 @@ public class Grid {
     private int playerPieces;
     private int aiPieces;
     private ArrayList<Cell> pitLocations;
+    private int pitsPerRow;
+    private int numOfWumpus;
+    private int numOfHero;
+    private int numOfMage;
 
     public Grid(){
         this.gridSize = 3;
+        this.pitsPerRow = (gridSize/3) - 1;
+        this.numOfWumpus = (gridSize/3);
+        this.numOfHero = (gridSize/3);
+        this.numOfMage = (gridSize/3);
+
         this.pitLocations = new ArrayList<Cell>();
         initializeMap();
     }
     public Grid(int gridSize){
         this.gridSize = gridSize;
+        this.pitsPerRow = (gridSize/3) - 1;
+        this.numOfWumpus = (gridSize/3);
+        this.numOfHero = (gridSize/3);
+        this.numOfMage = (gridSize/3);
         this.pitLocations = new ArrayList<Cell>();
         initializeMap();
     }
     public Grid(int gridSize, boolean newMap){
         this.gridSize = gridSize;
+        this.pitsPerRow = (gridSize/3) - 1;
+        this.numOfWumpus = (gridSize/3);
+        this.numOfHero = (gridSize/3);
+        this.numOfMage = (gridSize/3);
         map = new Cell[gridSize][gridSize];
         for(int row = 0; row < gridSize; row++){
             for(int column = 0; column < gridSize; column++) {
@@ -88,6 +105,14 @@ public class Grid {
         }
     }
 
+    public int getNumOfWumpus(){ return this.numOfWumpus; }
+    public int getNumOfHero(){ return this.numOfHero; }
+    public int getNumOfMage(){ return this.numOfMage; }
+
+    public void setNumOfWumpus(int wumpus) { this.numOfWumpus = wumpus; }
+    public void setNumOfHero(int hero) { this.numOfHero = hero; }
+    public void setNumOfMage(int mage) { this.numOfMage = mage; }
+
     public ArrayList<Cell> getPitLocations() { return this.pitLocations; }
 
     public int getPlayerCount(){
@@ -105,6 +130,10 @@ public class Grid {
     public int getMapSize(){
         return gridSize;
     }
+
+    public int getPitsPerRow() { return this.pitsPerRow; }
+
+    public void setPitsPerRow(int pits) { this.pitsPerRow = pits; }
 
     public boolean checkOutOfBounds(int x, int y){
         return x < 0 || x >= gridSize || y < 0 || y >= gridSize;

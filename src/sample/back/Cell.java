@@ -32,6 +32,7 @@ public class Cell {
     public int getRow(){
         return this.row;
     }
+
     public void setRow(int row){
         this.row = row;
     }

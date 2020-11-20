@@ -10,16 +10,25 @@ public class Grid {
     private int aiPieces;
     private ArrayList<Cell> pitLocations;
     private int pitsPerRow;
-    private int numOfWumpus;
-    private int numOfHero;
-    private int numOfMage;
+    private int numOfPWumpus;
+    private int numOfPHero;
+    private int numOfPMage;
+
+    private int numOfAWumpus;
+    private int numOfAHero;
+    private int numOfAMage;
 
     public Grid(){
         this.gridSize = 3;
         this.pitsPerRow = (gridSize/3) - 1;
-        this.numOfWumpus = (gridSize/3);
-        this.numOfHero = (gridSize/3);
-        this.numOfMage = (gridSize/3);
+
+        this.numOfPWumpus = (gridSize/3);
+        this.numOfPHero = (gridSize/3);
+        this.numOfPMage = (gridSize/3);
+
+        this.numOfAWumpus = (gridSize/3);
+        this.numOfAHero = (gridSize/3);
+        this.numOfAMage = (gridSize/3);
 
         this.pitLocations = new ArrayList<Cell>();
         initializeMap();
@@ -27,18 +36,24 @@ public class Grid {
     public Grid(int gridSize){
         this.gridSize = gridSize;
         this.pitsPerRow = (gridSize/3) - 1;
-        this.numOfWumpus = (gridSize/3);
-        this.numOfHero = (gridSize/3);
-        this.numOfMage = (gridSize/3);
+        this.numOfPWumpus = (gridSize/3);
+        this.numOfPHero = (gridSize/3);
+        this.numOfPMage = (gridSize/3);
+        this.numOfAWumpus = (gridSize/3);
+        this.numOfAHero = (gridSize/3);
+        this.numOfAMage = (gridSize/3);
         this.pitLocations = new ArrayList<Cell>();
         initializeMap();
     }
     public Grid(int gridSize, boolean newMap){
         this.gridSize = gridSize;
         this.pitsPerRow = (gridSize/3) - 1;
-        this.numOfWumpus = (gridSize/3);
-        this.numOfHero = (gridSize/3);
-        this.numOfMage = (gridSize/3);
+        this.numOfPWumpus = (gridSize/3);
+        this.numOfPHero = (gridSize/3);
+        this.numOfPMage = (gridSize/3);
+        this.numOfAWumpus = (gridSize/3);
+        this.numOfAHero = (gridSize/3);
+        this.numOfAMage = (gridSize/3);
         map = new Cell[gridSize][gridSize];
         for(int row = 0; row < gridSize; row++){
             for(int column = 0; column < gridSize; column++) {
@@ -55,9 +70,7 @@ public class Grid {
         for(int row = 1; row < gridSize - 1; row++){
             for(int column = 0; column < gridSize; column++){
                 map[row][column] = new Cell(row, column);
-                if(((gridSize/3) - 1) > 0){
-                    map[row][column].setPitProb(1.0/(gridSize));
-                }
+                map[row][column].setPitProb(((double) (gridSize/3) - 1)/(gridSize));
             }
             int numOfPits = (gridSize/3) - 1;
             while(numOfPits > 0){
@@ -94,7 +107,7 @@ public class Grid {
                     map[0][col].setHeroProb(1);
                     break;
                 case 'M':
-                    map[0][col].setMagicProb(1);
+                    map[0][col].setMageProb(1);
                     break;
                 default:
                     System.out.println("Unknown type in initializing the board");
@@ -105,13 +118,21 @@ public class Grid {
         }
     }
 
-    public int getNumOfWumpus(){ return this.numOfWumpus; }
-    public int getNumOfHero(){ return this.numOfHero; }
-    public int getNumOfMage(){ return this.numOfMage; }
+    public int getNumOfPWumpus(){ return this.numOfPWumpus; }
+    public int getNumOfPHero(){ return this.numOfPHero; }
+    public int getNumOfPMage(){ return this.numOfPMage; }
 
-    public void setNumOfWumpus(int wumpus) { this.numOfWumpus = wumpus; }
-    public void setNumOfHero(int hero) { this.numOfHero = hero; }
-    public void setNumOfMage(int mage) { this.numOfMage = mage; }
+    public void setNumOfPWumpus(int wumpus) { this.numOfPWumpus = wumpus; }
+    public void setNumOfPHero(int hero) { this.numOfPHero = hero; }
+    public void setNumOfPMage(int mage) { this.numOfPMage = mage; }
+
+    public int getNumOfAWumpus(){ return this.numOfAWumpus; }
+    public int getNumOfAHero(){ return this.numOfAHero; }
+    public int getNumOfAMage(){ return this.numOfAMage; }
+
+    public void setNumOfAWumpus(int wumpus) { this.numOfAWumpus = wumpus; }
+    public void setNumOfAHero(int hero) { this.numOfAHero = hero; }
+    public void setNumOfAMage(int mage) { this.numOfAMage = mage; }
 
     public ArrayList<Cell> getPitLocations() { return this.pitLocations; }
 
@@ -140,7 +161,7 @@ public class Grid {
     }
 
     public void setProbability(Cell copy, int row, int col){
-        this.map[row][col].setMagicProb(copy.getMagicProb());
+        this.map[row][col].setMageProb(copy.getMageProb());
         this.map[row][col].setWumpusProb(copy.getWumpusProb());
         this.map[row][col].setPitProb(copy.getPitProb());
         this.map[row][col].setHeroProb(copy.getHeroProb());
@@ -183,6 +204,22 @@ public class Grid {
         return false;
     }
 
+    public int getNeighborsCount(int row, int col){
+        if(checkOutOfBounds(row, col)){
+            System.out.println("Out of bounds point entered: [X: " + row + "] [Y: " + col + "]");
+            return -1;
+        }
+        int neighbors = 0;
+        for(int posX = row - 1; posX <= row + 1; posX++){
+            for(int posY = col - 1; posY <= col + 1; posY++){
+                if(!checkOutOfBounds(posX, posY) && (posX != row || posY != col)){
+                    neighbors++;
+                }
+            }
+        }
+        return neighbors;
+    }
+
     public ArrayList<Cell> getNeighbors(int row, int col){
         //Safety check to make sure you're not getting neighbors for out of bounds points
         if(checkOutOfBounds(row, col)){
@@ -207,9 +244,37 @@ public class Grid {
     public void destroyCell(Cell cell1){
         if(cell1.belongToPlayer() == '1'){
             cell1.reset();
+            char type = cell1.getType();
+            switch (type) {
+                case 'W':
+                    this.numOfPWumpus--;
+                    break;
+                case 'H':
+                    this.numOfPHero--;
+                    break;
+                case 'M':
+                    this.numOfPMage--;
+                    break;
+                default:
+                    System.out.println("Trying to destroy some invalid type! " + type);
+            }
             playerPieces -= 1;
         }else if(cell1.belongToPlayer() == '2'){
             cell1.reset();
+            char type = cell1.getType();
+            switch (type) {
+                case 'W':
+                    this.numOfAWumpus--;
+                    break;
+                case 'H':
+                    this.numOfAHero--;
+                    break;
+                case 'M':
+                    this.numOfAMage--;
+                    break;
+                default:
+                    System.out.println("Trying to destroy some invalid type! " + type);
+            }
             aiPieces -= 1;
         }else{
             System.out.println("Error: trying to destroy a piece that is not a player or AI piece");

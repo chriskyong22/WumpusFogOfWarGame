@@ -47,7 +47,7 @@ public class Cell {
 
     public double getWumpusProb() { return this.wumpusProb; }
     public double getHeroProb() { return this.heroProb; }
-    public double getMagicProb() { return this.magicProb; }
+    public double getMageProb() { return this.magicProb; }
     public double getPitProb() { return this.pitProb; }
 
     public void setWumpusProb(double value){
@@ -58,7 +58,7 @@ public class Cell {
         this.heroProb = value;
     }
 
-    public void setMagicProb(double value){
+    public void setMageProb(double value){
         this.magicProb = value;
     }
 

@@ -78,11 +78,65 @@ public class Logic {
                     fogOfWar.setProbability(map.getCell(row, col), row, col);
                 }
             }
+            calculateBeforeProbabilities(fogOfWar, false);
+            updateStateProbabilities(fogOfWar);
             setObservations(positions, fogOfWar, false);
         }
         return fogOfWar;
     }
 
+    /**
+     * Part 2 of the project (Before the observations are made, calculate and set the probabilities of the opponent's move choices)
+     * @param fogOfWar
+     * @param isPlayer
+     */
+    public void calculateBeforeProbabilities(Grid fogOfWar, boolean isPlayer){
+        if(isPlayer){
+
+        }else{
+            for(int row = 0; row < map.getMapSize(); row++){
+                for(int col = 0; col < map.getMapSize(); col++){
+                    int playerPieces = map.getPlayerCount();
+                    double[] neighborMovingProbability = neighborMovingProbability(row, col, isPlayer);
+                    double wumpusProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0];
+                    double heroProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1];
+                    double mageProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) +neighborMovingProbability[2];
+                    fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
+                    fogOfWar.getCell(row, col).setHeroProb(heroProb);
+                    fogOfWar.getCell(row, col).setMageProb(mageProb);
+                }
+            }
+        }
+    }
+
+    public void updateStateProbabilities(Grid newProbabilities){
+        for(int row = 0; row < map.getMapSize(); row++){
+            for(int col = 0; col < map.getMapSize(); col++){
+                Cell copy = newProbabilities.getCell(row, col);
+                map.setProbability(copy, row, col);
+            }
+        }
+    }
+
+    /**
+     * Returns an array consisting of the probabilities of wumpus/hero/mage neighbors moving into (row, col)
+     * @param row
+     * @param col
+     * @param isPlayer
+     * @return An array where [0] represents wumpus, [1] represents hero, [2] represents Mage
+     */
+    public double[] neighborMovingProbability(int row, int col, boolean isPlayer){
+        int opponentPieces = isPlayer ? map.getAICount() : map.getPlayerCount();
+
+        ArrayList<Cell> neighbors = map.getNeighbors(row, col);
+        double[] probability = new double[3];
+        for(Cell neighbor : neighbors){
+            probability[0] += neighbor.getWumpusProb() * (1.0/ (opponentPieces * map.getNeighborsCount(neighbor.getRow(), neighbor.getCol())));
+            probability[1] += neighbor.getHeroProb() * (1.0/ (opponentPieces * map.getNeighborsCount(neighbor.getRow(), neighbor.getCol())));
+            probability[2] += neighbor.getMageProb() * (1.0/ (opponentPieces * map.getNeighborsCount(neighbor.getRow(), neighbor.getCol())));
+        }
+        return probability;
+    }
 
     public void setObservations(ArrayList<Cell> pieces, Grid fogOfWar, boolean isPlayer){
         for(Cell cell1 : pieces){

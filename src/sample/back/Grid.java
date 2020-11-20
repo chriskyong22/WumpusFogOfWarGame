@@ -38,6 +38,9 @@ public class Grid {
         for(int row = 1; row < gridSize - 1; row++){
             for(int column = 0; column < gridSize; column++){
                 map[row][column] = new Cell(row, column);
+                if(((gridSize/3) - 1) > 0){
+                    map[row][column].setPitProb(1.0/(gridSize));
+                }
             }
             int numOfPits = (gridSize/3) - 1;
             while(numOfPits > 0){
@@ -66,7 +69,22 @@ public class Grid {
                     break;
             }
             map[0][col] = new Cell(type, '1', 0, col);
+            switch (type) {
+                case 'W':
+                    map[0][col].setWumpusProb(1);
+                    break;
+                case 'H':
+                    map[0][col].setHeroProb(1);
+                    break;
+                case 'M':
+                    map[0][col].setMagicProb(1);
+                    break;
+                default:
+                    System.out.println("Unknown type in initializing the board");
+            }
+            map[0][col].setPitProb(0);
             map[gridSize-1][col] = new Cell(type, '2', gridSize-1, col);
+            map[gridSize-1][col].setPitProb(0);
         }
     }
 
@@ -90,6 +108,13 @@ public class Grid {
 
     public boolean checkOutOfBounds(int x, int y){
         return x < 0 || x >= gridSize || y < 0 || y >= gridSize;
+    }
+
+    public void setProbability(Cell copy, int row, int col){
+        this.map[row][col].setMagicProb(copy.getMagicProb());
+        this.map[row][col].setWumpusProb(copy.getWumpusProb());
+        this.map[row][col].setPitProb(copy.getPitProb());
+        this.map[row][col].setHeroProb(copy.getHeroProb());
     }
 
     public ArrayList<Cell> getAICells(){

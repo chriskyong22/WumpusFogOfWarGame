@@ -42,6 +42,7 @@ public class Logic {
                 }else{
                     fogOfWar.getCell(row, col).setType('?');
                 }
+                fogOfWar.setProbability(map.getCell(row, col), row, col);
             }
         }
         return fogOfWar;
@@ -61,6 +62,7 @@ public class Logic {
                     }else{
                         fogOfWar.getCell(row, col).setType('?');
                     }
+                    fogOfWar.setProbability(map.getCell(row, col), row, col);
                 }
             }
             setObservations(positions, fogOfWar, true);
@@ -73,6 +75,7 @@ public class Logic {
                     }else{
                         fogOfWar.getCell(row, col).setType('?');
                     }
+                    fogOfWar.setProbability(map.getCell(row, col), row, col);
                 }
             }
             setObservations(positions, fogOfWar, false);

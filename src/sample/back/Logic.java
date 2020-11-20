@@ -27,34 +27,36 @@ public class Logic {
 
     /***
      * Initial State of the board (Before any move is made)
-     * @param playerOrAI
      * @return Map (before any move is made)
      */
-    public Grid initialize(boolean playerOrAI){
+    public Grid initialize(){
         Grid fogOfWar = new Grid(map.getMapSize(), true);
-        if(playerOrAI){
-            for(int row = 0; row < map.getMapSize(); row++){
-                for(int col = 0; col < map.getMapSize(); col++){
-                    if(map.getCell(row, col).belongToPlayer() == '1'){
-                        fogOfWar.setCell(map.getCell(row, col));
-                    }else{
-                        fogOfWar.getCell(row, col).setType('?');
-                    }
+        fogOfWar.setAIPieces(map.getAICount());
+        fogOfWar.setPlayerPieces(map.getPlayerCount());
+        for(int row = 0; row < map.getMapSize(); row++){
+            for(int col = 0; col < map.getMapSize(); col++){
+                if(map.getCell(row, col).belongToPlayer() == '1'){
+                    fogOfWar.setCell(map.getCell(row, col));
+                }else if(map.getCell(row, col).belongToPlayer() == '2'){
+                    fogOfWar.setCell(map.getCell(row, col));
+                }else{
+                    fogOfWar.getCell(row, col).setType('?');
                 }
             }
-        }else{
-
         }
         return fogOfWar;
     }
 
-    public Grid render(boolean playerOrAI){
+    public Grid render(boolean isPlayer){
         Grid fogOfWar = new Grid(map.getMapSize(), true);
+        fogOfWar.setAIPieces(map.getAICount());
+        fogOfWar.setPlayerPieces(map.getPlayerCount());
         ArrayList<Cell> positions = new ArrayList<Cell>();
-        if(playerOrAI){
+        if(isPlayer){
             for(int row = 0; row < map.getMapSize(); row++){
                 for(int col = 0; col < map.getMapSize(); col++){
                     if(map.getCell(row, col).belongToPlayer() == '1'){
+                        positions.add(map.getCell(row, col));
                         fogOfWar.setCell(map.getCell(row, col));
                     }else{
                         fogOfWar.getCell(row, col).setType('?');
@@ -66,6 +68,7 @@ public class Logic {
             for(int row = 0; row < map.getMapSize(); row++){
                 for(int col = 0; col < map.getMapSize(); col++){
                     if(map.getCell(row, col).belongToPlayer() == '2'){
+                        positions.add(map.getCell(row, col));
                         fogOfWar.setCell(map.getCell(row, col));
                     }else{
                         fogOfWar.getCell(row, col).setType('?');

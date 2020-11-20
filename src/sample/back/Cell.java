@@ -101,10 +101,11 @@ public class Cell {
      * H [Human]
      * M [Mage]
      * P [Pit]
+     * B [Breeze]
      * S [Stench]
      * ! [Hero Moving]
      * F [Fire Magic]
-     * @return
+     * @return cell type
      */
     public char getType(){
         return this.cellType;

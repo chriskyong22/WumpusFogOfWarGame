@@ -14,5 +14,6 @@ public class Test {
         initial.printMap();
         initial = temp.render(false);
         initial.printMap();
+        temp.printObservations();
     }
 }

@@ -10,10 +10,11 @@ public class Logic {
     private Grid map;
     private int depth;
     private Move bestMove;
-
+    private ArrayList<Cell> observations;
     public Logic(Grid map, int depthSearch) {
         this.map = map;
         this.depth = depthSearch;
+        observations = new ArrayList<Cell>();
         initialize();
     }
 
@@ -67,7 +68,7 @@ public class Logic {
                     fogOfWar.setProbability(map.getCell(row, col), row, col);
                 }
             }
-            setObservations(positions, fogOfWar, true);
+            this.observations = setObservations(positions, fogOfWar, true);
         }else{
             for(int row = 0; row < map.getMapSize(); row++){
                 for(int col = 0; col < map.getMapSize(); col++){
@@ -80,11 +81,12 @@ public class Logic {
                     fogOfWar.setProbability(map.getCell(row, col), row, col);
                 }
             }
-            ArrayList<Cell> observations = setObservations(positions, fogOfWar, false);
-            calculateObservationProbability(fogOfWar, observations, isPlayer);
+            this.observations = setObservations(positions, fogOfWar, false);
+            calculateObservationProbability(fogOfWar, this.observations, isPlayer);
         }
         return fogOfWar;
     }
+
 
     public Grid render(boolean isPlayer){
         return generateObservations(isPlayer);
@@ -112,7 +114,7 @@ public class Logic {
 
         }else{
             for(Cell observation : observations){
-                
+
             }
         }
     }
@@ -180,8 +182,8 @@ public class Logic {
                 int neighborCol = neighbor.getCol();
 
                 if((neighbor.belongToPlayer() == '2' && isPlayer) || neighbor.getType() == 'P' || (neighbor.belongToPlayer() == '1' && !isPlayer)){
-                    if(!observations.contains(cell1)){
-                        observations.add(cell1);
+                    if(!observations.contains(fogOfWar.getCell(row, col))){
+                        observations.add(fogOfWar.getCell(row, col));
                     }
                     char type = neighbor.getType();
                     switch(type){
@@ -204,6 +206,20 @@ public class Logic {
             }
         }
         return observations;
+    }
+
+    public ArrayList<Cell> getObservations(){
+        return this.observations;
+    }
+
+    public void printObservations(){
+        for(Cell c : observations){
+            System.out.print( "[" + c.getRow() + ":" + c.getCol() + "] Observations: [");
+            for(char observation : c.observations){
+                System.out.print(observation + ",");
+            }
+            System.out.print("]\n");
+        }
     }
 
     public double run(int heuristicSelected){

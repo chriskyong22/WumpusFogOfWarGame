@@ -9,10 +9,8 @@ public class Test {
         Logic temp = new Logic(test, 4);
         System.out.println("Initial Map Visual:");
         test.printMap();
-        Grid initial = temp.initialize();
         System.out.println("Fog of War Visual");
-        initial.printMap();
-        initial = temp.render(true);
+        Grid initial = temp.render(true);
         initial.printMap();
         initial = temp.render(false);
         initial.printMap();

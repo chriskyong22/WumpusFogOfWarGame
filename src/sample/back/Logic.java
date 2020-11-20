@@ -14,6 +14,7 @@ public class Logic {
     public Logic(Grid map, int depthSearch) {
         this.map = map;
         this.depth = depthSearch;
+        initialize();
     }
 
 
@@ -26,18 +27,18 @@ public class Logic {
     }
 
     /***
-     * Initial State of the board (Before any move is made)
-     * @return Map (before any move is made)
+     * Initial State of the board (Before any move is made) (Sets all the probabilities to the correct ones)
      */
-    public Grid initialize(){
+    public void initialize(){
         Grid fogOfWar = new Grid(map.getMapSize(), true);
         fogOfWar.setAIPieces(map.getAICount());
         fogOfWar.setPlayerPieces(map.getPlayerCount());
+        ArrayList<Cell> positions = new ArrayList<Cell>();
+
         for(int row = 0; row < map.getMapSize(); row++){
             for(int col = 0; col < map.getMapSize(); col++){
-                if(map.getCell(row, col).belongToPlayer() == '1'){
-                    fogOfWar.setCell(map.getCell(row, col));
-                }else if(map.getCell(row, col).belongToPlayer() == '2'){
+                if(map.getCell(row, col).belongToPlayer() == '2'){
+                    positions.add(map.getCell(row, col));
                     fogOfWar.setCell(map.getCell(row, col));
                 }else{
                     fogOfWar.getCell(row, col).setType('?');
@@ -45,10 +46,11 @@ public class Logic {
                 fogOfWar.setProbability(map.getCell(row, col), row, col);
             }
         }
-        return fogOfWar;
+        calculateBeforeProbabilities(fogOfWar, false);
+        updateStateProbabilities(fogOfWar);
     }
 
-    public Grid render(boolean isPlayer){
+    public Grid generateObservations(boolean isPlayer){
         Grid fogOfWar = new Grid(map.getMapSize(), true);
         fogOfWar.setAIPieces(map.getAICount());
         fogOfWar.setPlayerPieces(map.getPlayerCount());
@@ -78,13 +80,42 @@ public class Logic {
                     fogOfWar.setProbability(map.getCell(row, col), row, col);
                 }
             }
-            calculateBeforeProbabilities(fogOfWar, false);
-            updateStateProbabilities(fogOfWar);
-            setObservations(positions, fogOfWar, false);
+            ArrayList<Cell> observations = setObservations(positions, fogOfWar, false);
+            calculateObservationProbability(fogOfWar, observations, isPlayer);
         }
         return fogOfWar;
     }
 
+    public Grid render(boolean isPlayer){
+        return generateObservations(isPlayer);
+    }
+
+    public Grid AInextTurn(){
+        //Player Move
+        Grid fogOfWar = generateObservations(false);
+        updateStateProbabilities(fogOfWar);
+
+        //AI makes a move
+        fogOfWar = generateObservations(false);
+        updateStateProbabilities(fogOfWar);
+
+        //Calculate possible moves the Player can make
+        calculateBeforeProbabilities(fogOfWar, false);
+        updateStateProbabilities(fogOfWar);
+
+        fogOfWar = generateObservations(true);
+        return fogOfWar;
+    }
+
+    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, boolean isPlayer){
+        if(isPlayer){
+
+        }else{
+            for(Cell observation : observations){
+
+            }
+        }
+    }
     /**
      * Part 2 of the project (Before the observations are made, calculate and set the probabilities of the opponent's move choices)
      * @param fogOfWar
@@ -138,7 +169,8 @@ public class Logic {
         return probability;
     }
 
-    public void setObservations(ArrayList<Cell> pieces, Grid fogOfWar, boolean isPlayer){
+    public ArrayList<Cell> setObservations(ArrayList<Cell> pieces, Grid fogOfWar, boolean isPlayer){
+        ArrayList<Cell> observations = new ArrayList<Cell>();
         for(Cell cell1 : pieces){
             int row = cell1.getRow();
             int col = cell1.getCol();
@@ -148,6 +180,7 @@ public class Logic {
                 int neighborCol = neighbor.getCol();
 
                 if((neighbor.belongToPlayer() == '2' && isPlayer) || neighbor.getType() == 'P' || (neighbor.belongToPlayer() == '1' && !isPlayer)){
+                    observations.add(fogOfWar.getCell(neighborRow, neighborCol));
                     char type = neighbor.getType();
                     switch(type){
                         case 'P':
@@ -183,6 +216,7 @@ public class Logic {
                 }
             }
         }
+        return observations;
     }
 
     public double run(int heuristicSelected){

@@ -103,7 +103,7 @@ public class Cell {
      * P [Pit]
      * B [Breeze]
      * S [Stench]
-     * ! [Hero Moving]
+     * N [Hero Noise]
      * F [Fire Magic]
      * @return cell type
      */

@@ -105,7 +105,7 @@ public class Logic {
                             }
                             break;
                         case 'H':
-                            fogOfWar.getCell(neighborRow, neighborCol).setType('!'); //Hero Moving
+                            fogOfWar.getCell(neighborRow, neighborCol).setType('N'); //Hero Moving
                             if(isPlayer){
                                 fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('2');
                             }else{

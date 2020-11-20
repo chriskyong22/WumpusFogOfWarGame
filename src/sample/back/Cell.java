@@ -1,4 +1,5 @@
 package sample.back;
+import java.util.ArrayList;
 
 public class Cell {
     private char cellType;
@@ -9,13 +10,14 @@ public class Cell {
     private double heroProb;
     private double magicProb;
     private double pitProb;
-
+    public ArrayList<Character> observations;
 
     public Cell(int row, int col){
         this.cellType = 'E';
         this.playerPiece = '0';
         this.row = row;
         this.col = col;
+        observations = new ArrayList<Character>();
     }
 
     public Cell(char type, char playerPiece, int row, int col){
@@ -23,6 +25,7 @@ public class Cell {
         this.playerPiece = playerPiece;
         this.row = row;
         this.col = col;
+        observations = new ArrayList<Character>();
     }
 
     public Cell copy(){

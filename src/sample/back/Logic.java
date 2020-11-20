@@ -112,7 +112,7 @@ public class Logic {
 
         }else{
             for(Cell observation : observations){
-
+                
             }
         }
     }
@@ -180,35 +180,22 @@ public class Logic {
                 int neighborCol = neighbor.getCol();
 
                 if((neighbor.belongToPlayer() == '2' && isPlayer) || neighbor.getType() == 'P' || (neighbor.belongToPlayer() == '1' && !isPlayer)){
-                    observations.add(fogOfWar.getCell(neighborRow, neighborCol));
+                    if(!observations.contains(cell1)){
+                        observations.add(cell1);
+                    }
                     char type = neighbor.getType();
                     switch(type){
                         case 'P':
-                            fogOfWar.getCell(neighborRow, neighborCol).setType('B'); //Breeze
+                            fogOfWar.getCell(row, col).observations.add('B'); //Breeze
                             break;
                         case 'W':
-                            fogOfWar.getCell(neighborRow, neighborCol).setType('S'); //Stench
-                            if(isPlayer){
-                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('2');
-                            }else{
-                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('1');
-                            }
+                            fogOfWar.getCell(row, col).observations.add('S'); //Stench
                             break;
                         case 'H':
-                            fogOfWar.getCell(neighborRow, neighborCol).setType('N'); //Hero Moving
-                            if(isPlayer){
-                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('2');
-                            }else{
-                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('1');
-                            }
+                            fogOfWar.getCell(row, col).observations.add('N'); //Hero Moving
                             break;
                         case 'M':
-                            fogOfWar.getCell(neighborRow, neighborCol).setType('F'); //Fire Magic
-                            if(isPlayer){
-                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('2');
-                            }else{
-                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('1');
-                            }
+                            fogOfWar.getCell(row, col).observations.add('F'); //Fire Magic
                             break;
                         default:
                             System.out.println("An error occurred when setting the observations!");

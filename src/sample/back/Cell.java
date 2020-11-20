@@ -96,6 +96,16 @@ public class Cell {
         this.playerPiece = playerPiece;
     }
 
+    /**
+     * W [Wumpus]
+     * H [Human]
+     * M [Mage]
+     * P [Pit]
+     * S [Stench]
+     * ! [Hero Moving]
+     * F [Fire Magic]
+     * @return
+     */
     public char getType(){
         return this.cellType;
     }

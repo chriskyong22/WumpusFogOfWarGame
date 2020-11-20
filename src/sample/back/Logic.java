@@ -16,9 +16,22 @@ public class Logic {
         this.depth = depthSearch;
     }
 
-    public Grid render(boolean playerOrAI){
+
+    /***
+     * Get the state of the board (with no fog of war)
+     * @return map (with no fog of war)
+     */
+    public Grid getFullState(){
+        return map;
+    }
+
+    /***
+     * Initial State of the board (Before any move is made)
+     * @param playerOrAI
+     * @return Map (before any move is made)
+     */
+    public Grid initialize(boolean playerOrAI){
         Grid fogOfWar = new Grid(map.getMapSize(), true);
-        ArrayList<Cell> playerPosition = new ArrayList<Cell>();
         if(playerOrAI){
             for(int row = 0; row < map.getMapSize(); row++){
                 for(int col = 0; col < map.getMapSize(); col++){
@@ -35,24 +48,74 @@ public class Logic {
         return fogOfWar;
     }
 
+    public Grid render(boolean playerOrAI){
+        Grid fogOfWar = new Grid(map.getMapSize(), true);
+        ArrayList<Cell> positions = new ArrayList<Cell>();
+        if(playerOrAI){
+            for(int row = 0; row < map.getMapSize(); row++){
+                for(int col = 0; col < map.getMapSize(); col++){
+                    if(map.getCell(row, col).belongToPlayer() == '1'){
+                        fogOfWar.setCell(map.getCell(row, col));
+                    }else{
+                        fogOfWar.getCell(row, col).setType('?');
+                    }
+                }
+            }
+            setObservations(positions, fogOfWar, true);
+        }else{
+            for(int row = 0; row < map.getMapSize(); row++){
+                for(int col = 0; col < map.getMapSize(); col++){
+                    if(map.getCell(row, col).belongToPlayer() == '2'){
+                        fogOfWar.setCell(map.getCell(row, col));
+                    }else{
+                        fogOfWar.getCell(row, col).setType('?');
+                    }
+                }
+            }
+            setObservations(positions, fogOfWar, false);
+        }
+        return fogOfWar;
+    }
+
 
     public void setObservations(ArrayList<Cell> pieces, Grid fogOfWar, boolean isPlayer){
         for(Cell cell1 : pieces){
             int row = cell1.getRow();
             int col = cell1.getCol();
             ArrayList<Cell> neighbors = map.getNeighbors(row, col);
-            for(Cell temp : neighbors){
-                int neighborRow = temp.getRow();
-                int neighborCol = temp.getCol();
+            for(Cell neighbor : neighbors){
+                int neighborRow = neighbor.getRow();
+                int neighborCol = neighbor.getCol();
 
-                if(temp.belongToPlayer() == '2' && isPlayer){
-                    char type = temp.getType();
+                if((neighbor.belongToPlayer() == '2' && isPlayer) || neighbor.getType() == 'P' || (neighbor.belongToPlayer() == '1' && !isPlayer)){
+                    char type = neighbor.getType();
                     switch(type){
+                        case 'P':
+                            fogOfWar.getCell(neighborRow, neighborCol).setType('B'); //Breeze
+                            break;
                         case 'W':
+                            fogOfWar.getCell(neighborRow, neighborCol).setType('S'); //Stench
+                            if(isPlayer){
+                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('2');
+                            }else{
+                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('1');
+                            }
                             break;
                         case 'H':
+                            fogOfWar.getCell(neighborRow, neighborCol).setType('!'); //Hero Moving
+                            if(isPlayer){
+                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('2');
+                            }else{
+                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('1');
+                            }
                             break;
                         case 'M':
+                            fogOfWar.getCell(neighborRow, neighborCol).setType('F'); //Fire Magic
+                            if(isPlayer){
+                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('2');
+                            }else{
+                                fogOfWar.getCell(neighborRow, neighborCol).setPlayerPiece('1');
+                            }
                             break;
                         default:
                             System.out.println("An error occurred when setting the observations!");

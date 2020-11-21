@@ -14,6 +14,7 @@ public class Move {
         this.goal = goal;
         this.heuristicValue = heuristicValue;
     }
+
     public void setHeuristicValue(double heuristicValue){
         this.heuristicValue = heuristicValue;
     }

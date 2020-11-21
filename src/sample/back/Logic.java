@@ -95,6 +95,69 @@ public class Logic {
         return generateObservations(isPlayer);
     }
 
+    public Move policy(){
+        PriorityQueue<Move> queue = new PriorityQueue<Move>(11, (Move m1, Move m2) -> Double.compare(m1.getHeuristicValue(), m2.getHeuristicValue()));
+        ArrayList<Cell> pieces = map.getAICells();
+
+       for(Cell piece : pieces){
+           ArrayList<Cell> moves = possibleMoves(piece);
+           for(Cell move : moves){
+               Cell copyOrigin = piece.copy();
+               Cell copyGoal = move.copy();
+               double reward = calculateGoodMove(piece, move);
+               queue.add(new Move(copyOrigin, copyGoal, reward));
+           }
+       }
+       return queue.poll();
+    }
+
+    public double calculateGoodMove(Cell origin, Cell goal){
+        char type = origin.getType();
+        if(goal.getPitProb() > 0){ //Should never attempt to check/move into a cell that has a probability of being a pit
+            return -1000;
+        }
+        
+        ArrayList<Cell> neighbors = map.getNeighbors(origin.getRow(), origin.getCol());
+        double value = 0;
+        //Checking if running away from a certain piece (if same piece, no difference)
+        for(Cell neighbor : neighbors){
+            if(map.isNeighbor(neighbor, goal.getRow(), goal.getCol())){
+                continue;
+            }
+            switch (type) {
+                case 'W':
+                    value += neighbor.getHeroProb() * 100 + neighbor.getMageProb() * -50;
+                    break;
+                case 'H':
+                    value += neighbor.getMageProb() * 100 + neighbor.getWumpusProb() * -50;
+                    break;
+                case 'M':
+                    value += neighbor.getWumpusProb() * 100 + neighbor.getHeroProb() * -50;
+                    break;
+                default:
+                    System.out.println("Invalid type, trying to move a piece that is not an AI piece");
+                    break;
+            }
+        }
+
+        //Checking the probability of moving into a cell with each piece
+        switch (type) {
+            case 'W':
+                value = (goal.getMageProb() * 100) + (goal.getHeroProb() * -150) + (goal.getWumpusProb() * 50);
+                break;
+            case 'H':
+                value = (goal.getMageProb() * -150) + (goal.getHeroProb() * 50) + (goal.getWumpusProb() * 100);
+                break;
+            case 'M':
+                value = (goal.getMageProb() * 50) + (goal.getHeroProb() * 100) + (goal.getWumpusProb() * -150);
+                break;
+            default:
+                System.out.println("Invalid type, trying to move a piece that is not an AI piece");
+                break;
+        }
+        return value;
+    }
+
     public Grid AInextTurn(){
         //Player Move
         Grid fogOfWar = generateObservations(false);
@@ -211,7 +274,9 @@ public class Logic {
                 double pitProb = pitLeft == 0 ? 0 : map.getCell(row, c).getPitProb() * ((double) (pitLeft - 1) /pitLeft);
                 copy.getCell(row, c).setPitProb(pitProb);
             }
-            System.out.println("Nice");
+            //Finished creating the new distribution of the map given the formula in case 2, stored in "copy"
+
+            //How to calculate P(O) now?
         }
 
         return probabilities;

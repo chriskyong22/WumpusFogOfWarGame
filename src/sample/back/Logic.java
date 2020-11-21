@@ -119,7 +119,8 @@ public class Logic {
 
         ArrayList<Cell> neighbors = map.getNeighbors(origin.getRow(), origin.getCol());
         double value = 0;
-        //Checking if running away from a certain piece (if same piece, no difference)
+
+        //Checking if running away from a certain piece (if same piece, no difference | if piece is killable, negative value | if piece is going kill your piece, positive value
         for(Cell neighbor : neighbors){
             if(map.isNeighbor(neighbor, goal.getRow(), goal.getCol())){
                 continue;
@@ -143,13 +144,13 @@ public class Logic {
         //Checking the probability of moving into a cell with each piece
         switch (type) {
             case 'W':
-                value = (goal.getMageProb() * 100) + (goal.getHeroProb() * -150) + (goal.getWumpusProb() * 50);
+                value += (goal.getMageProb() * 100) + (goal.getHeroProb() * -150) + (goal.getWumpusProb() * 50);
                 break;
             case 'H':
-                value = (goal.getMageProb() * -150) + (goal.getHeroProb() * 50) + (goal.getWumpusProb() * 100);
+                value += (goal.getMageProb() * -150) + (goal.getHeroProb() * 50) + (goal.getWumpusProb() * 100);
                 break;
             case 'M':
-                value = (goal.getMageProb() * 50) + (goal.getHeroProb() * 100) + (goal.getWumpusProb() * -150);
+                value += (goal.getMageProb() * 50) + (goal.getHeroProb() * 100) + (goal.getWumpusProb() * -150);
                 break;
             default:
                 System.out.println("Invalid type, trying to move a piece that is not an AI piece");

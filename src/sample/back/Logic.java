@@ -82,7 +82,7 @@ public class Logic {
                 }
             }
             this.observations = setObservations(positions, fogOfWar, false);
-            calculateObservationProbability(fogOfWar, this.observations, isPlayer);
+            calculateObservationProbability(fogOfWar, this.observations, positions, isPlayer);
         }
         return fogOfWar;
     }
@@ -109,15 +109,31 @@ public class Logic {
         return fogOfWar;
     }
 
-    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, boolean isPlayer){
+    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces, boolean isPlayer){
+        ArrayList<Cell> updateProbabilities = new ArrayList<Cell>();
         if(isPlayer){
 
         }else{
-            for(Cell observation : observations){
-
+            for(Cell piece : pieces){
+                if(observations.contains(piece)){
+                    continue;
+                }
+                for(Cell c : map.getNeighbors(piece.getRow(), piece.getCol())){
+                    if(updateProbabilities.contains(c)){
+                        continue;
+                    }
+                    updateProbabilities.add(c);
+                }
+            }
+            for(Cell c : updateProbabilities){
+                fogOfWar.getCell(c.getRow(), c.getCol()).setWumpusProb(0);
+                fogOfWar.getCell(c.getRow(), c.getCol()).setHeroProb(0);
+                fogOfWar.getCell(c.getRow(), c.getCol()).setMageProb(0);
+                fogOfWar.getCell(c.getRow(), c.getCol()).setPitProb(0);
             }
         }
     }
+
     /**
      * Part 2 of the project (Before the observations are made, calculate and set the probabilities of the opponent's move choices)
      * @param fogOfWar

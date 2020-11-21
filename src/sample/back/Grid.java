@@ -198,10 +198,7 @@ public class Grid {
 
     public boolean isNeighbor(Cell cell1, int row, int col){
         ArrayList<Cell> neighbors = getNeighbors(row, col);
-        if(neighbors.contains(cell1)){
-            return true;
-        }
-        return false;
+        return neighbors.contains(cell1);
     }
 
     public int getNeighborsCount(int row, int col){

@@ -1,5 +1,7 @@
 package sample.back;
 
+import javafx.beans.Observable;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -47,7 +49,7 @@ public class Logic {
                 fogOfWar.setProbability(map.getCell(row, col), row, col);
             }
         }
-        calculateBeforeProbabilities(fogOfWar, false);
+        calculateRandomMoveProbability(fogOfWar, false);
         updateStateProbabilities(fogOfWar);
     }
 
@@ -82,7 +84,7 @@ public class Logic {
                 }
             }
             this.observations = setObservations(positions, fogOfWar, false);
-            calculateObservationProbability(fogOfWar, this.observations, positions, isPlayer);
+            calculateObservationProbability(fogOfWar, this.observations, positions);
         }
         return fogOfWar;
     }
@@ -102,55 +104,107 @@ public class Logic {
         updateStateProbabilities(fogOfWar);
 
         //Calculate possible moves the Player can make
-        calculateBeforeProbabilities(fogOfWar, false);
+        calculateRandomMoveProbability(fogOfWar, false);
         updateStateProbabilities(fogOfWar);
 
         fogOfWar = generateObservations(true);
         return fogOfWar;
     }
 
-    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces, boolean isPlayer){
-        ArrayList<Cell> updateProbabilities = new ArrayList<Cell>();
-        if(isPlayer){
+    /**
+     * Get the probabilities of a certain cell
+     * @param row
+     * @param col
+     * @return [0] wumpus prob, [1] hero prob, [2] mage prob, [3] pit prob
+     */
+    public double[] getCurrentProbabilities(int row, int col){
+        double[] probabilities = new double[4];
+        probabilities[0] = map.getCell(row, col).getWumpusProb();
+        probabilities[1] = map.getCell(row, col).getHeroProb();
+        probabilities[2] = map.getCell(row, col).getMageProb();
+        probabilities[3] = map.getCell(row, col).getPitProb();
+        return probabilities;
+    }
 
-        }else{
-            //NOTE ORDER MATTERS for these two following for loop (want to set the observations of atleast first then observations of none)
+    public double[] getObservationGivenPiece(int row, int col, ArrayList<Cell> observations, ArrayList<Cell> pieces, Grid fogOfWar){
+        double[] probabilities = new double[4];
+        ArrayList<Cell> observed = new ArrayList<Cell>(); //Represents the pieces that observed a combination of either stench/noise/firemage/breeze and is adjacent to the (row, col) cell
 
-            //Setting the PIECES observation probabilities that observe atleast a Stench/Breeze/FireMage/Noise
-            for(Cell piece : observations){
-                for(Cell c : map.getNeighbors(piece.getRow(), piece.getCol())){
-                    if(!piece.observations.contains('B')){ //Does not contain observation of Breeze, no chance for Pit
-                        fogOfWar.getCell(c.getRow(), c.getCol()).setPitProb(0);
-                    }
-                    if(!piece.observations.contains('F')){ //Does not contain observation of Fire Magic, no chance for Mage
-                        fogOfWar.getCell(c.getRow(), c.getCol()).setMageProb(0);
-                    }
-                    if(!piece.observations.contains('S')){ //Does not contain observation of Stench, no chance for Wumpus
-                        fogOfWar.getCell(c.getRow(), c.getCol()).setWumpusProb(0);
-                    }
-                    if(!piece.observations.contains('N')){ //Does not contain observation of Noise therefore no chance for hero to be there
-                        fogOfWar.getCell(c.getRow(), c.getCol()).setHeroProb(0);
-                    }
-                }
-            }
-
-            //Setting the probabilities for pieces that observe NO STENCH,NO NOISE,NO HEAT,NO BREEZE
-            for(Cell piece : pieces){
+        for(Cell piece : pieces){
+            //If this is true, case 1 (we want to find all PIECES that received an observation adjacent to this cell)
+            if(map.isNeighbor(piece, row, col)){
                 if(observations.contains(piece)){
-                    continue;
-                }
-                for(Cell c : map.getNeighbors(piece.getRow(), piece.getCol())){
-                    if(updateProbabilities.contains(c)){
-                        continue;
-                    }
-                    updateProbabilities.add(c);
+                    observed.add(fogOfWar.getCell(piece.getRow(), piece.getCol()));
+                }else{ //This is a case where a piece observed no stench, no noise, no fire magic, no breeze and it is adjacent to the (row, col)
+                    probabilities[0] = 0;
+                    probabilities[1] = 0;
+                    probabilities[2] = 0;
+                    probabilities[3] = 0;
+                    return probabilities;
                 }
             }
-            for(Cell c : updateProbabilities){
-                fogOfWar.getCell(c.getRow(), c.getCol()).setWumpusProb(0);
-                fogOfWar.getCell(c.getRow(), c.getCol()).setHeroProb(0);
-                fogOfWar.getCell(c.getRow(), c.getCol()).setMageProb(0);
-                fogOfWar.getCell(c.getRow(), c.getCol()).setPitProb(0);
+        }
+
+        if(observed.size() > 0){
+            //THIS IS ALL CASE 1
+            boolean containWumpus = true;
+            boolean containHero = true;
+            boolean containMage = true;
+            boolean containPit = true;
+            //If any of the observations do not observe a stench/noise/firemage/breeze then we know the cell cannot contain wumpus/hero/mage/pit
+            for(Cell observation : observed){
+                if(!observation.observations.contains('S')){
+                    probabilities[0] = 0;
+                    containWumpus = false;
+                }
+                if(!observation.observations.contains('N')){
+                    probabilities[1] = 0;
+                    containHero = false;
+                }
+                if(!observation.observations.contains('F')){
+                    probabilities[2] = 0;
+                    containMage = false;
+                }
+                if(!observation.observations.contains('B')){
+                    probabilities[3] = 0;
+                    containPit = false;
+                }
+            }
+
+            if(containWumpus){
+                probabilities[0] = map.getCell(row, col).getWumpusProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
+            }
+            if(containHero){
+                probabilities[1] = map.getCell(row, col).getHeroProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
+            }
+            if(containMage){
+                probabilities[2] = map.getCell(row, col).getMageProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
+            }
+            if(containPit){
+                probabilities[3] = map.getCell(row, col).getPitProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
+            }
+        }else{
+            //CASE 2 TO BE IMPLEMENTED STILL
+        }
+
+
+        return probabilities;
+    }
+
+    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces){
+        for(int row = 0; row < map.getMapSize(); row++){
+            for(int col = 0; col < map.getMapSize(); col++){
+                double[] probabilities = getCurrentProbabilities(row, col);
+                double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
+                double wumpusProb = probabilities[0] * observationGivenPiece[0];
+                double heroProb = probabilities[1] * observationGivenPiece[1];
+                double mageProb = probabilities[2] * observationGivenPiece[2];
+                double pitProb = probabilities[3] * observationGivenPiece[3];
+
+                fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
+                fogOfWar.getCell(row, col).setHeroProb(heroProb);
+                fogOfWar.getCell(row, col).setMageProb(mageProb);
+                fogOfWar.getCell(row, col).setPitProb(pitProb);
             }
         }
     }
@@ -160,7 +214,7 @@ public class Logic {
      * @param fogOfWar
      * @param isPlayer
      */
-    public void calculateBeforeProbabilities(Grid fogOfWar, boolean isPlayer){
+    public void calculateRandomMoveProbability(Grid fogOfWar, boolean isPlayer){
         if(isPlayer){
 
         }else{
@@ -208,6 +262,13 @@ public class Logic {
         return probability;
     }
 
+    /**
+     * Returns a list of observations (only the observations that gave a stench/noise/firemagic/breeze, if you want the observe no stench/noise/breeze then check the pieces list and remove any pieces that are in observation from the pieces list
+     * @param pieces
+     * @param fogOfWar
+     * @param isPlayer
+     * @return (Observations are kept in fogOfWar Grid) A list of observations (only observations that gave a stench/noise/firemagic/breeze), does not provide the pieces that observed no stench + no breeze + no noise + no fire magic
+     */
     public ArrayList<Cell> setObservations(ArrayList<Cell> pieces, Grid fogOfWar, boolean isPlayer){
         ArrayList<Cell> observations = new ArrayList<Cell>();
         for(Cell cell1 : pieces){

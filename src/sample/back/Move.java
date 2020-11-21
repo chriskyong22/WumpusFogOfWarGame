@@ -29,6 +29,10 @@ public class Move {
         return goal;
     }
 
+    public void print(){
+        System.out.println("[" + origin.getRow() + ":" + origin.getCol() + "]" + " MOVING TO " + "[" + goal.getRow() + ":" + goal.getCol() + "]" + " with reward value " + heuristicValue);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

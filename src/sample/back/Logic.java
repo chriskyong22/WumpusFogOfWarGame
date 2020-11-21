@@ -96,7 +96,7 @@ public class Logic {
     }
 
     public Move policy(){
-        PriorityQueue<Move> queue = new PriorityQueue<Move>(11, (Move m1, Move m2) -> Double.compare(m1.getHeuristicValue(), m2.getHeuristicValue()));
+        PriorityQueue<Move> queue = new PriorityQueue<Move>(11, (Move m1, Move m2) -> Double.compare(m2.getHeuristicValue(), m1.getHeuristicValue()));
         ArrayList<Cell> pieces = map.getAICells();
 
        for(Cell piece : pieces){
@@ -116,7 +116,7 @@ public class Logic {
         if(goal.getPitProb() > 0){ //Should never attempt to check/move into a cell that has a probability of being a pit
             return -1000;
         }
-        
+
         ArrayList<Cell> neighbors = map.getNeighbors(origin.getRow(), origin.getCol());
         double value = 0;
         //Checking if running away from a certain piece (if same piece, no difference)

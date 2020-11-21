@@ -15,5 +15,8 @@ public class Test {
         initial = temp.render(false);
         initial.printMap();
         temp.printObservations();
+        temp.updateStateProbabilities(initial);
+        Move bestMove = temp.policy();
+        bestMove.print();
     }
 }

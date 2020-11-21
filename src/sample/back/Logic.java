@@ -114,6 +114,27 @@ public class Logic {
         if(isPlayer){
 
         }else{
+            //NOTE ORDER MATTERS for these two following for loop (want to set the observations of atleast first then observations of none)
+
+            //Setting the PIECES observation probabilities that observe atleast a Stench/Breeze/FireMage/Noise
+            for(Cell piece : observations){
+                for(Cell c : map.getNeighbors(piece.getRow(), piece.getCol())){
+                    if(!piece.observations.contains('B')){ //Does not contain observation of Breeze, no chance for Pit
+                        fogOfWar.getCell(c.getRow(), c.getCol()).setPitProb(0);
+                    }
+                    if(!piece.observations.contains('F')){ //Does not contain observation of Fire Magic, no chance for Mage
+                        fogOfWar.getCell(c.getRow(), c.getCol()).setMageProb(0);
+                    }
+                    if(!piece.observations.contains('S')){ //Does not contain observation of Stench, no chance for Wumpus
+                        fogOfWar.getCell(c.getRow(), c.getCol()).setWumpusProb(0);
+                    }
+                    if(!piece.observations.contains('N')){ //Does not contain observation of Noise therefore no chance for hero to be there
+                        fogOfWar.getCell(c.getRow(), c.getCol()).setHeroProb(0);
+                    }
+                }
+            }
+
+            //Setting the probabilities for pieces that observe NO STENCH,NO NOISE,NO HEAT,NO BREEZE
             for(Cell piece : pieces){
                 if(observations.contains(piece)){
                     continue;

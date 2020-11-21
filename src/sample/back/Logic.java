@@ -4,6 +4,7 @@ import javafx.beans.Observable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.lang.Math;
 
@@ -184,9 +185,34 @@ public class Logic {
                 probabilities[3] = map.getCell(row, col).getPitProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
             }
         }else{
-            //CASE 2 TO BE IMPLEMENTED STILL
-        }
+            int wumpusLeft = map.getNumOfPWumpus();
+            int heroLeft = map.getNumOfPWumpus();
+            int mageLeft = map.getNumOfPWumpus();
+            int pitLeft = map.getPitsPerRow();
 
+            Grid copy = new Grid(map);
+            for(int r = 0; r < map.getMapSize(); r++){
+                for(int c = 0; c < map.getMapSize(); c++){
+                    if(r == row && c == col){
+                        continue;
+                    }
+                    double wumpusProb = wumpusLeft == 0 ? 0 : map.getCell(r, c).getWumpusProb() * ((double) (wumpusLeft - 1)/wumpusLeft);
+                    double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * ((double) (heroLeft - 1) /heroLeft);
+                    double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * ((double) (mageLeft - 1) /mageLeft);
+                    copy.getCell(r, c).setWumpusProb(wumpusProb);
+                    copy.getCell(r, c).setHeroProb(heroProb);
+                    copy.getCell(r, c).setMageProb(mageProb);
+                }
+            }
+            for(int c = 0; c < map.getMapSize(); c++){
+                if(c == col){
+                    continue;
+                }
+                double pitProb = pitLeft == 0 ? 0 : map.getCell(row, c).getPitProb() * ((double) (pitLeft - 1) /pitLeft);
+                copy.getCell(row, c).setPitProb(pitProb);
+            }
+            System.out.println("Nice");
+        }
 
         return probabilities;
     }

@@ -33,6 +33,7 @@ public class Grid {
         this.pitLocations = new ArrayList<Cell>();
         initializeMap();
     }
+
     public Grid(int gridSize){
         this.gridSize = gridSize;
         this.pitsPerRow = (gridSize/3) - 1;
@@ -45,6 +46,7 @@ public class Grid {
         this.pitLocations = new ArrayList<Cell>();
         initializeMap();
     }
+
     public Grid(int gridSize, boolean newMap){
         this.gridSize = gridSize;
         this.pitsPerRow = (gridSize/3) - 1;
@@ -61,6 +63,31 @@ public class Grid {
             }
         }
         this.pitLocations = new ArrayList<Cell>();
+    }
+
+    public Grid(Grid copy){
+        this.gridSize = copy.getMapSize();
+        this.pitsPerRow = copy.getPitsPerRow();
+        this.aiPieces = copy.getAICount();
+        this.playerPieces = copy.getPlayerCount();
+
+        this.numOfPHero = copy.getNumOfPHero();
+        this.numOfPMage = copy.getNumOfPMage();
+        this.numOfPWumpus = copy.getNumOfPWumpus();
+
+        this.numOfAHero = copy.getNumOfPHero();
+        this.numOfAMage = copy.getNumOfPMage();
+        this.numOfAWumpus = copy.getNumOfPWumpus();
+
+        this.pitLocations = new ArrayList<Cell>();
+        this.pitLocations.addAll(copy.getPitLocations());
+
+        this.map = new Cell[gridSize][gridSize];
+        for(int row = 0; row < gridSize; row++){
+            for(int col = 0; col < gridSize; col++) {
+                this.map[row][col] = copy.getCell(row, col).copy();
+            }
+        }
     }
 
     public void initializeMap(){

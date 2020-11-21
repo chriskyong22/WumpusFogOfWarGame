@@ -28,8 +28,21 @@ public class Cell {
         observations = new ArrayList<Character>();
     }
 
+    public Cell(char type, char playerPiece, int row, int col, ArrayList<Character> observations, double wumpusProb, double heroProb, double magicProb, double pitProb){
+        this.cellType = type;
+        this.playerPiece = playerPiece;
+        this.row = row;
+        this.col = col;
+        this.observations = new ArrayList<Character>();
+        this.observations.addAll(observations);
+        this.wumpusProb = wumpusProb;
+        this.heroProb = heroProb;
+        this.magicProb = magicProb;
+        this.pitProb = pitProb;
+    }
+
     public Cell copy(){
-        return new Cell(this.cellType, this.playerPiece, this.row, this.col);
+        return new Cell(this.cellType, this.playerPiece, this.row, this.col, this.observations, this.wumpusProb, this.heroProb, this.magicProb, this.pitProb);
     }
 
     public int getRow(){

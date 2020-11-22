@@ -96,6 +96,7 @@ public class Logic {
     }
 
     public Move policy(){
+
         PriorityQueue<Move> queue = new PriorityQueue<Move>(11, (Move m1, Move m2) -> Double.compare(m2.getHeuristicValue(), m1.getHeuristicValue()));
         ArrayList<Cell> pieces = map.getAICells();
 
@@ -141,7 +142,7 @@ public class Logic {
             }
         }
 
-        //Checking the probability of moving into a cell with each piece
+        //Checking the probability of moving into a cell with a killable/nonkillable/same piece
         switch (type) {
             case 'W':
                 value += (goal.getMageProb() * 100) + (goal.getHeroProb() * -150) + (goal.getWumpusProb() * 50);
@@ -166,6 +167,8 @@ public class Logic {
 
         //AI makes a move
         Move bestMove = policy();
+        this.bestMove = bestMove; //Used to retrieve the value to print the UI
+        move(bestMove.getOrigin(), bestMove.getGoal());
         fogOfWar = generateObservations(false);
         updateStateProbabilities(fogOfWar);
 
@@ -269,8 +272,13 @@ public class Logic {
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);
                     copy.getCell(r, c).setMageProb(mageProb);
+
+                    //Set all the pit probabilities = previous ones (otherwise all the pit probabilities will be 0 besides the pit probabilities on the same row as (x,y)
+                    copy.getCell(r, c).setPitProb(map.getCell(r, c).getPitProb());
                 }
             }
+
+            //Only update the pit probabilities that are in the same row as the (x,y) cell ?? I don't know exactly if this is a good idea
             for(int c = 0; c < map.getMapSize(); c++){
                 if(c == col){
                     continue;
@@ -280,7 +288,16 @@ public class Logic {
             }
             //Finished creating the new distribution of the map given the formula in case 2, stored in "copy"
 
-            //How to calculate P(O) now?
+            //How to calculate P(O) now? WHEN YOU KNOW Please replace the "0" with the P(O | Wxy), P(O | Hxy)...
+            double wumpusPlaceHolder = 0;
+            double heroPlaceHolder = 0;
+            double magePlaceHolder = 0;
+            double pitPlaceHolder = 0;
+
+            probabilities[0] = wumpusPlaceHolder;
+            probabilities[1] = heroPlaceHolder;
+            probabilities[2] = magePlaceHolder;
+            probabilities[3] = pitPlaceHolder;
         }
 
         return probabilities;

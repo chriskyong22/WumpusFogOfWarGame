@@ -9,8 +9,8 @@ public class Test {
         Logic search = new Logic(original, 4);
         System.out.println("Initial Map Visual:");
         original.printMap();
-        Cell start = original.getCell(0,0);
-        Cell goal = original.getCell(4, 1);
+        Cell start = original.getCell(0,2);
+        Cell goal = original.getCell(3, 1);
         search.move(start, goal);
         System.out.println("Fog of War Visual");
         Grid fogOfWar = search.render(true);
@@ -22,6 +22,9 @@ public class Test {
         search.updateStateProbabilities(fogOfWar);
         search.calculateRandomMoveProbability(fogOfWar, false);
         search.updateStateProbabilities(fogOfWar);
+        Cell AIStart = original.getCell(5,0);
+        Cell AIGoal = original.getCell(4, 1);
+        search.move(AIStart, AIGoal);
         fogOfWar = search.render(false);
         fogOfWar.printMap();
         search.printObservations();

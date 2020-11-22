@@ -54,45 +54,34 @@ public class Logic {
         updateStateProbabilities(fogOfWar);
     }
 
-    public Grid generateObservations(boolean isPlayer){
-        Grid fogOfWar = new Grid(map.getMapSize(), true);
-        fogOfWar.setAIPieces(map.getAICount());
-        fogOfWar.setPlayerPieces(map.getPlayerCount());
-        ArrayList<Cell> positions = new ArrayList<Cell>();
-        if(isPlayer){
-            for(int row = 0; row < map.getMapSize(); row++){
-                for(int col = 0; col < map.getMapSize(); col++){
-                    if(map.getCell(row, col).belongToPlayer() == '1'){
-                        positions.add(map.getCell(row, col));
-                        fogOfWar.setCell(map.getCell(row, col));
-                    }else{
-                        fogOfWar.getCell(row, col).setType('?');
-                    }
-                    fogOfWar.setProbability(map.getCell(row, col), row, col);
-                }
-            }
-            this.observations = setObservations(positions, fogOfWar, true);
-        }else{
-            for(int row = 0; row < map.getMapSize(); row++){
-                for(int col = 0; col < map.getMapSize(); col++){
-                    if(map.getCell(row, col).belongToPlayer() == '2'){
-                        positions.add(map.getCell(row, col));
-                        fogOfWar.setCell(map.getCell(row, col));
-                    }else{
-                        fogOfWar.getCell(row, col).setType('?');
-                    }
-                    fogOfWar.setProbability(map.getCell(row, col), row, col);
-                }
-            }
-            this.observations = setObservations(positions, fogOfWar, false);
-            calculateObservationProbability(fogOfWar, this.observations, positions);
-        }
-        return fogOfWar;
-    }
-
-
+    /**
+     * Generates a fog of war map
+     * @param isPlayer
+     * @return fog of war map
+     */
     public Grid render(boolean isPlayer){
         return generateObservations(isPlayer);
+    }
+
+    public Grid AInextTurn(){
+        //Player Move
+        Grid fogOfWar = generateObservations(false);
+        updateStateProbabilities(fogOfWar);
+
+        //AI makes a move
+        Move bestMove = policy();
+        this.bestMove = bestMove; //Used to retrieve the value to print the UI
+        move(bestMove.getOrigin(), bestMove.getGoal());
+        fogOfWar = generateObservations(false);
+        updateStateProbabilities(fogOfWar);
+
+        //Calculate possible moves the Player can make
+        calculateRandomMoveProbability(fogOfWar, false);
+        updateStateProbabilities(fogOfWar);
+
+        //Return a map containing the player view of the board
+        fogOfWar = generateObservations(true);
+        return fogOfWar;
     }
 
     public Move policy(){
@@ -100,19 +89,19 @@ public class Logic {
         PriorityQueue<Move> queue = new PriorityQueue<Move>(11, (Move m1, Move m2) -> Double.compare(m2.getHeuristicValue(), m1.getHeuristicValue()));
         ArrayList<Cell> pieces = map.getAICells();
 
-       for(Cell piece : pieces){
-           ArrayList<Cell> moves = possibleMoves(piece);
-           for(Cell move : moves){
-               Cell copyOrigin = piece.copy();
-               Cell copyGoal = move.copy();
-               double reward = calculateGoodMove(piece, move);
-               queue.add(new Move(copyOrigin, copyGoal, reward));
-           }
-       }
-       return queue.poll();
+        for(Cell piece : pieces){
+            ArrayList<Cell> moves = possibleMoves(piece);
+            for(Cell move : moves){
+                Cell copyOrigin = piece.copy();
+                Cell copyGoal = move.copy();
+                double reward = calculateReward(piece, move);
+                queue.add(new Move(copyOrigin, copyGoal, reward));
+            }
+        }
+        return queue.poll();
     }
 
-    public double calculateGoodMove(Cell origin, Cell goal){
+    public double calculateReward(Cell origin, Cell goal){
         char type = origin.getType();
         if(goal.getPitProb() > 0){ //Should never attempt to check/move into a cell that has a probability of being a pit
             return -1000;
@@ -160,24 +149,64 @@ public class Logic {
         return value;
     }
 
-    public Grid AInextTurn(){
-        //Player Move
-        Grid fogOfWar = generateObservations(false);
-        updateStateProbabilities(fogOfWar);
+    /**
+     * Part 2 of the project (Before the observations are made, calculate and set the probabilities of the opponent's move choices)
+     * @param fogOfWar
+     * @param isPlayer
+     */
+    public void calculateRandomMoveProbability(Grid fogOfWar, boolean isPlayer){
+        if(isPlayer){
 
-        //AI makes a move
-        Move bestMove = policy();
-        this.bestMove = bestMove; //Used to retrieve the value to print the UI
-        move(bestMove.getOrigin(), bestMove.getGoal());
-        fogOfWar = generateObservations(false);
-        updateStateProbabilities(fogOfWar);
+        }else{
+            for(int row = 0; row < map.getMapSize(); row++){
+                for(int col = 0; col < map.getMapSize(); col++){
+                    int playerPieces = map.getPlayerCount();
+                    double[] neighborMovingProbability = neighborMovingProbability(row, col, isPlayer);
+                    double wumpusProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0];
+                    double heroProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1];
+                    double mageProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) + neighborMovingProbability[2];
+                    fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
+                    fogOfWar.getCell(row, col).setHeroProb(heroProb);
+                    fogOfWar.getCell(row, col).setMageProb(mageProb);
+                    fogOfWar.getCell(row, col).setPitProb(map.getCell(row, col).getPitProb());
+                }
+            }
+        }
+    }
 
-        //Calculate possible moves the Player can make
-        calculateRandomMoveProbability(fogOfWar, false);
-        updateStateProbabilities(fogOfWar);
-
-        //Return a map containing the player view of the board
-        fogOfWar = generateObservations(true);
+    public Grid generateObservations(boolean isPlayer){
+        Grid fogOfWar = new Grid(map.getMapSize(), true);
+        fogOfWar.setAIPieces(map.getAICount());
+        fogOfWar.setPlayerPieces(map.getPlayerCount());
+        ArrayList<Cell> positions = new ArrayList<Cell>();
+        if(isPlayer){
+            for(int row = 0; row < map.getMapSize(); row++){
+                for(int col = 0; col < map.getMapSize(); col++){
+                    if(map.getCell(row, col).belongToPlayer() == '1'){
+                        positions.add(map.getCell(row, col));
+                        fogOfWar.setCell(map.getCell(row, col));
+                    }else{
+                        fogOfWar.getCell(row, col).setType('?');
+                    }
+                    fogOfWar.setProbability(map.getCell(row, col), row, col);
+                }
+            }
+            this.observations = setObservations(positions, fogOfWar, true);
+        }else{
+            for(int row = 0; row < map.getMapSize(); row++){
+                for(int col = 0; col < map.getMapSize(); col++){
+                    if(map.getCell(row, col).belongToPlayer() == '2'){
+                        positions.add(map.getCell(row, col));
+                        fogOfWar.setCell(map.getCell(row, col));
+                    }else{
+                        fogOfWar.getCell(row, col).setType('?');
+                    }
+                    fogOfWar.setProbability(map.getCell(row, col), row, col);
+                }
+            }
+            this.observations = setObservations(positions, fogOfWar, false);
+            calculateObservationProbability(fogOfWar, this.observations, positions);
+        }
         return fogOfWar;
     }
 
@@ -194,6 +223,34 @@ public class Logic {
         probabilities[2] = map.getCell(row, col).getMageProb();
         probabilities[3] = map.getCell(row, col).getPitProb();
         return probabilities;
+    }
+
+    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces){
+        for(int row = 0; row < map.getMapSize(); row++){
+            for(int col = 0; col < map.getMapSize(); col++){
+                Cell temp = map.getCell(row, col);
+                if(pieces.contains(temp)){ //If the AI piece is selected, obviously the piece does not have a chance to be an Wumpus/Hero/Mage/Pit
+                    fogOfWar.getCell(row, col).setWumpusProb(0);
+                    fogOfWar.getCell(row, col).setHeroProb(0);
+                    fogOfWar.getCell(row, col).setMageProb(0);
+                    fogOfWar.getCell(row, col).setPitProb(0);
+                    continue;
+                }
+                double[] probabilities = getCurrentProbabilities(row, col);
+                double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
+
+                //STILL NEED TO CALCULATE P(O), not sure how to do this, need to factor this into the wumpusProb/heroProb/mageProb/pitProb
+                double wumpusProb = probabilities[0] * observationGivenPiece[0];
+                double heroProb = probabilities[1] * observationGivenPiece[1];
+                double mageProb = probabilities[2] * observationGivenPiece[2];
+                double pitProb = probabilities[3] * observationGivenPiece[3];
+
+                fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
+                fogOfWar.getCell(row, col).setHeroProb(heroProb);
+                fogOfWar.getCell(row, col).setMageProb(mageProb);
+                fogOfWar.getCell(row, col).setPitProb(pitProb);
+            }
+        }
     }
 
     public double[] getObservationGivenPiece(int row, int col, ArrayList<Cell> observations, ArrayList<Cell> pieces, Grid fogOfWar){
@@ -217,7 +274,7 @@ public class Logic {
         }
 
         if(observed.size() > 0){
-            //THIS IS ALL CASE 1
+            //this is CASE 1
             boolean containWumpus = true;
             boolean containHero = true;
             boolean containMage = true;
@@ -255,6 +312,7 @@ public class Logic {
                 probabilities[3] = map.getCell(row, col).getPitProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
             }
         }else{
+            //this is CASE 2
             int wumpusLeft = map.getNumOfPWumpus();
             int heroLeft = map.getNumOfPWumpus();
             int mageLeft = map.getNumOfPWumpus();
@@ -303,57 +361,11 @@ public class Logic {
         return probabilities;
     }
 
-    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces){
-        for(int row = 0; row < map.getMapSize(); row++){
-            for(int col = 0; col < map.getMapSize(); col++){
-                Cell temp = map.getCell(row, col);
-                if(pieces.contains(temp)){ //If the AI piece is selected, obviously the piece does not have a chance to be an Wumpus/Hero/Mage/Pit
-                    fogOfWar.getCell(row, col).setWumpusProb(0);
-                    fogOfWar.getCell(row, col).setHeroProb(0);
-                    fogOfWar.getCell(row, col).setMageProb(0);
-                    fogOfWar.getCell(row, col).setPitProb(0);
-                    continue;
-                }
-                double[] probabilities = getCurrentProbabilities(row, col);
-                double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
-                double wumpusProb = probabilities[0] * observationGivenPiece[0];
-                double heroProb = probabilities[1] * observationGivenPiece[1];
-                double mageProb = probabilities[2] * observationGivenPiece[2];
-                double pitProb = probabilities[3] * observationGivenPiece[3];
-
-                fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
-                fogOfWar.getCell(row, col).setHeroProb(heroProb);
-                fogOfWar.getCell(row, col).setMageProb(mageProb);
-                fogOfWar.getCell(row, col).setPitProb(pitProb);
-            }
-        }
-    }
 
     /**
-     * Part 2 of the project (Before the observations are made, calculate and set the probabilities of the opponent's move choices)
-     * @param fogOfWar
-     * @param isPlayer
+     * Updates the current probabilities to the one specified in the parameter
+     * @param newProbabilities
      */
-    public void calculateRandomMoveProbability(Grid fogOfWar, boolean isPlayer){
-        if(isPlayer){
-
-        }else{
-            for(int row = 0; row < map.getMapSize(); row++){
-                for(int col = 0; col < map.getMapSize(); col++){
-                    int playerPieces = map.getPlayerCount();
-                    double[] neighborMovingProbability = neighborMovingProbability(row, col, isPlayer);
-                    double wumpusProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0];
-                    double heroProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1];
-                    double mageProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) +neighborMovingProbability[2];
-                    fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
-                    fogOfWar.getCell(row, col).setHeroProb(heroProb);
-                    fogOfWar.getCell(row, col).setMageProb(mageProb);
-                    fogOfWar.getCell(row, col).setPitProb(map.getCell(row, col).getPitProb());
-                }
-            }
-        }
-    }
-
     public void updateStateProbabilities(Grid newProbabilities){
         for(int row = 0; row < map.getMapSize(); row++){
             for(int col = 0; col < map.getMapSize(); col++){

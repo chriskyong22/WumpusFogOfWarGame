@@ -5,18 +5,29 @@ import java.util.Scanner;
 
 public class Test {
     public static void main(String[] args){
-        Grid test = new Grid(6);
-        Logic temp = new Logic(test, 4);
+        Grid original = new Grid(6);
+        Logic search = new Logic(original, 4);
         System.out.println("Initial Map Visual:");
-        test.printMap();
+        original.printMap();
+        Cell start = original.getCell(0,0);
+        Cell goal = original.getCell(4, 1);
+        search.move(start, goal);
         System.out.println("Fog of War Visual");
-        Grid initial = temp.render(true);
-        initial.printMap();
-        initial = temp.render(false);
-        initial.printMap();
-        temp.printObservations();
-        temp.updateStateProbabilities(initial);
-        Move bestMove = temp.policy();
+        Grid fogOfWar = search.render(true);
+        fogOfWar.printMap();
+        fogOfWar = search.render(false);
+        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.updateStateProbabilities(fogOfWar);
+        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.updateStateProbabilities(fogOfWar);
+        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.updateStateProbabilities(fogOfWar);
+        fogOfWar = search.render(false);
+        fogOfWar.printMap();
+        search.printObservations();
+        search.updateStateProbabilities(fogOfWar);
+
+        Move bestMove = search.policy();
         bestMove.print();
     }
 }

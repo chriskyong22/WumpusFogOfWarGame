@@ -122,18 +122,18 @@ public class Logic {
 
         //Checking if running away from a certain piece (if same piece, no difference | if piece is killable, negative value | if piece is going kill your piece, positive value
         for(Cell neighbor : neighbors){
-            if(map.isNeighbor(neighbor, goal.getRow(), goal.getCol())){
+            if(neighbor.equals(goal) || isNeighbor(neighbor, goal)){
                 continue;
             }
             switch (type) {
                 case 'W':
-                    value += neighbor.getHeroProb() * 100 + neighbor.getMageProb() * -50;
+                    value += neighbor.getHeroProb() * 75 + neighbor.getMageProb() * -50;
                     break;
                 case 'H':
-                    value += neighbor.getMageProb() * 100 + neighbor.getWumpusProb() * -50;
+                    value += neighbor.getMageProb() * 75 + neighbor.getWumpusProb() * -50;
                     break;
                 case 'M':
-                    value += neighbor.getWumpusProb() * 100 + neighbor.getHeroProb() * -50;
+                    value += neighbor.getWumpusProb() * 75 + neighbor.getHeroProb() * -50;
                     break;
                 default:
                     System.out.println("Invalid type, trying to move a piece that is not an AI piece");
@@ -165,6 +165,7 @@ public class Logic {
         updateStateProbabilities(fogOfWar);
 
         //AI makes a move
+        Move bestMove = policy();
         fogOfWar = generateObservations(false);
         updateStateProbabilities(fogOfWar);
 
@@ -172,6 +173,7 @@ public class Logic {
         calculateRandomMoveProbability(fogOfWar, false);
         updateStateProbabilities(fogOfWar);
 
+        //Return a map containing the player view of the board
         fogOfWar = generateObservations(true);
         return fogOfWar;
     }
@@ -197,7 +199,8 @@ public class Logic {
 
         for(Cell piece : pieces){
             //If this is true, case 1 (we want to find all PIECES that received an observation adjacent to this cell)
-            if(map.isNeighbor(piece, row, col)){
+            Cell c = map.getCell(row, col);
+            if(isNeighbor(piece, c)){
                 if(observations.contains(piece)){
                     observed.add(fogOfWar.getCell(piece.getRow(), piece.getCol()));
                 }else{ //This is a case where a piece observed no stench, no noise, no fire magic, no breeze and it is adjacent to the (row, col)
@@ -286,6 +289,14 @@ public class Logic {
     public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces){
         for(int row = 0; row < map.getMapSize(); row++){
             for(int col = 0; col < map.getMapSize(); col++){
+                Cell temp = map.getCell(row, col);
+                if(pieces.contains(temp)){ //If the AI piece is selected, obviously the piece does not have a chance to be an Wumpus/Hero/Mage/Pit
+                    fogOfWar.getCell(row, col).setWumpusProb(0);
+                    fogOfWar.getCell(row, col).setHeroProb(0);
+                    fogOfWar.getCell(row, col).setMageProb(0);
+                    fogOfWar.getCell(row, col).setPitProb(0);
+                    continue;
+                }
                 double[] probabilities = getCurrentProbabilities(row, col);
                 double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
                 double wumpusProb = probabilities[0] * observationGivenPiece[0];
@@ -320,6 +331,7 @@ public class Logic {
                     fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
                     fogOfWar.getCell(row, col).setHeroProb(heroProb);
                     fogOfWar.getCell(row, col).setMageProb(mageProb);
+                    fogOfWar.getCell(row, col).setPitProb(map.getCell(row, col).getPitProb());
                 }
             }
         }

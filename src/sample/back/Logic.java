@@ -226,10 +226,11 @@ public class Logic {
     }
 
     public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces){
+        double observationProbability = calculateFullObservationProbability(this.map, observations, pieces);
         for(int row = 0; row < map.getMapSize(); row++){
             for(int col = 0; col < map.getMapSize(); col++){
                 Cell temp = map.getCell(row, col);
-                if(pieces.contains(temp)){ //If the AI piece is selected, obviously the piece does not have a chance to be an Wumpus/Hero/Mage/Pit
+                if(pieces.contains(temp)){ // If the cell is an AI piece, obviously no chance for wumpus/hero/mage/pit
                     fogOfWar.getCell(row, col).setWumpusProb(0);
                     fogOfWar.getCell(row, col).setHeroProb(0);
                     fogOfWar.getCell(row, col).setMageProb(0);
@@ -240,10 +241,10 @@ public class Logic {
                 double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
 
                 //STILL NEED TO CALCULATE P(O), not sure how to do this, need to factor this into the wumpusProb/heroProb/mageProb/pitProb
-                double wumpusProb = probabilities[0] * observationGivenPiece[0];
-                double heroProb = probabilities[1] * observationGivenPiece[1];
-                double mageProb = probabilities[2] * observationGivenPiece[2];
-                double pitProb = probabilities[3] * observationGivenPiece[3];
+                double wumpusProb = (probabilities[0] * observationGivenPiece[0]) / observationProbability;
+                double heroProb = (probabilities[1] * observationGivenPiece[1]) / observationProbability;
+                double mageProb = (probabilities[2] * observationGivenPiece[2]) / observationProbability;
+                double pitProb = (probabilities[3] * observationGivenPiece[3]) / observationProbability;
 
                 fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
                 fogOfWar.getCell(row, col).setHeroProb(heroProb);
@@ -263,7 +264,7 @@ public class Logic {
             if(isNeighbor(piece, c)){
                 if(observations.contains(piece)){
                     observed.add(fogOfWar.getCell(piece.getRow(), piece.getCol()));
-                }else{ //This is a case where a piece observed no stench, no noise, no fire magic, no breeze and it is adjacent to the (row, col)
+                }else{ //If an adjacent cell is a AI piece and the AI piece observes no stench/no hero/no wumpus/no mage then return 0 for all probabilities
                     probabilities[0] = 0;
                     probabilities[1] = 0;
                     probabilities[2] = 0;
@@ -273,12 +274,12 @@ public class Logic {
             }
         }
 
+        boolean containWumpus = true;
+        boolean containHero = true;
+        boolean containMage = true;
+        boolean containPit = true;
         if(observed.size() > 0){
             //this is CASE 1
-            boolean containWumpus = true;
-            boolean containHero = true;
-            boolean containMage = true;
-            boolean containPit = true;
             //If any of the observations do not observe a stench/noise/firemage/breeze then we know the cell cannot contain wumpus/hero/mage/pit
             for(Cell observation : observed){
                 if(!observation.observations.contains('S')){
@@ -299,68 +300,174 @@ public class Logic {
                 }
             }
 
-            if(containWumpus){
-                probabilities[0] = map.getCell(row, col).getWumpusProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
-            }
-            if(containHero){
-                probabilities[1] = map.getCell(row, col).getHeroProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
-            }
-            if(containMage){
-                probabilities[2] = map.getCell(row, col).getMageProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
-            }
-            if(containPit){
-                probabilities[3] = map.getCell(row, col).getPitProb(); //PLACEHOLDER, IDK WHAT TO SET THE VALUE TO ATM
-            }
-        }else{
-            //this is CASE 2
-            int wumpusLeft = map.getNumOfPWumpus();
-            int heroLeft = map.getNumOfPWumpus();
-            int mageLeft = map.getNumOfPWumpus();
-            int pitLeft = map.getPitsPerRow();
+        }
+        //this is CASE 2
+        int wumpusLeft = map.getNumOfPWumpus();
+        int heroLeft = map.getNumOfPWumpus();
+        int mageLeft = map.getNumOfPWumpus();
+        int pitLeft = map.getPitsPerRow();
 
+
+        if(containWumpus){
             Grid copy = new Grid(map);
             for(int r = 0; r < map.getMapSize(); r++){
                 for(int c = 0; c < map.getMapSize(); c++){
                     if(r == row && c == col){
+                        copy.getCell(r, c).setWumpusProb(1);
+                        copy.getCell(r, c).setHeroProb(0);
+                        copy.getCell(r, c).setMageProb(0);
+                        copy.getCell(r, c).setPitProb(0);
                         continue;
                     }
                     double wumpusProb = wumpusLeft == 0 ? 0 : map.getCell(r, c).getWumpusProb() * ((double) (wumpusLeft - 1)/wumpusLeft);
-                    double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * ((double) (heroLeft - 1) /heroLeft);
-                    double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * ((double) (mageLeft - 1) /mageLeft);
+                    double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * (1.0 - (map.getCell(row, col).getHeroProb()));
+                    double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * (1.0 - (map.getCell(row,col).getMageProb()));
+                    double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * (1.0 - (map.getCell(row, col).getPitProb()));
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);
                     copy.getCell(r, c).setMageProb(mageProb);
-
-                    //Set all the pit probabilities = previous ones (otherwise all the pit probabilities will be 0 besides the pit probabilities on the same row as (x,y)
-                    copy.getCell(r, c).setPitProb(map.getCell(r, c).getPitProb());
+                    copy.getCell(r, c).setPitProb(pitProb);
                 }
             }
-
-            //Only update the pit probabilities that are in the same row as the (x,y) cell ?? I don't know exactly if this is a good idea
-            for(int c = 0; c < map.getMapSize(); c++){
-                if(c == col){
-                    continue;
-                }
-                double pitProb = pitLeft == 0 ? 0 : map.getCell(row, c).getPitProb() * ((double) (pitLeft - 1) /pitLeft);
-                copy.getCell(row, c).setPitProb(pitProb);
-            }
-            //Finished creating the new distribution of the map given the formula in case 2, stored in "copy"
-
-            //How to calculate P(O) now? WHEN YOU KNOW Please replace the "0" with the P(O | Wxy), P(O | Hxy)...
-            double wumpusPlaceHolder = 0;
-            double heroPlaceHolder = 0;
-            double magePlaceHolder = 0;
-            double pitPlaceHolder = 0;
-
-            probabilities[0] = wumpusPlaceHolder;
-            probabilities[1] = heroPlaceHolder;
-            probabilities[2] = magePlaceHolder;
-            probabilities[3] = pitPlaceHolder;
+            probabilities[0] =  calculateFullObservationProbability(copy, observations, pieces);
         }
-
+        if(containHero){
+            Grid copy = new Grid(map);
+            for(int r = 0; r < map.getMapSize(); r++){
+                for(int c = 0; c < map.getMapSize(); c++){
+                    if(r == row && c == col){
+                        copy.getCell(r, c).setWumpusProb(0);
+                        copy.getCell(r, c).setHeroProb(1);
+                        copy.getCell(r, c).setMageProb(0);
+                        copy.getCell(r, c).setPitProb(0);
+                        continue;
+                    }
+                    double wumpusProb = wumpusLeft == 0 ? 0 : map.getCell(r, c).getWumpusProb() * (1.0 - (map.getCell(row,col).getWumpusProb()));;
+                    double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * ((double) (heroLeft - 1)/heroLeft);
+                    double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * (1.0 - (map.getCell(row,col).getMageProb()));;
+                    double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * (1.0 - (map.getCell(row,col).getPitProb()));;
+                    copy.getCell(r, c).setWumpusProb(wumpusProb);
+                    copy.getCell(r, c).setHeroProb(heroProb);
+                    copy.getCell(r, c).setMageProb(mageProb);
+                    copy.getCell(r, c).setPitProb(pitProb);
+                }
+            }
+            probabilities[1] = calculateFullObservationProbability(copy, observations, pieces);
+        }
+        if(containMage){
+            Grid copy = new Grid(map);
+            for(int r = 0; r < map.getMapSize(); r++){
+                for(int c = 0; c < map.getMapSize(); c++){
+                    if(r == row && c == col){
+                        copy.getCell(r, c).setWumpusProb(0);
+                        copy.getCell(r, c).setHeroProb(0);
+                        copy.getCell(r, c).setMageProb(1);
+                        copy.getCell(r, c).setPitProb(0);
+                        continue;
+                    }
+                    double wumpusProb = wumpusLeft == 0 ? 0 : map.getCell(r, c).getWumpusProb() * (1.0 - (map.getCell(row,col).getWumpusProb()));
+                    double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * (1.0 - (map.getCell(row, col).getHeroProb()));
+                    double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * ((double) (mageLeft - 1)/mageLeft);
+                    double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * (1.0 - (map.getCell(row,col).getPitProb()));
+                    copy.getCell(r, c).setWumpusProb(wumpusProb);
+                    copy.getCell(r, c).setHeroProb(heroProb);
+                    copy.getCell(r, c).setMageProb(mageProb);
+                    copy.getCell(r, c).setPitProb(pitProb);
+                }
+            }
+            probabilities[2] =  calculateFullObservationProbability(copy, observations, pieces);
+        }
+        if(containPit){
+            Grid copy = new Grid(map);
+            for(int r = 0; r < map.getMapSize(); r++){
+                for(int c = 0; c < map.getMapSize(); c++){
+                    if(r == row && c == col){
+                        copy.getCell(r, c).setWumpusProb(0);
+                        copy.getCell(r, c).setHeroProb(0);
+                        copy.getCell(r, c).setMageProb(0);
+                        copy.getCell(r, c).setPitProb(1);
+                        continue;
+                    }
+                    double wumpusProb = wumpusLeft == 0 ? 0 : map.getCell(r, c).getWumpusProb() * (1.0 - (map.getCell(row,col).getWumpusProb()));
+                    double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * (1.0 - (map.getCell(row, col).getHeroProb()));
+                    double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * (1.0 - (map.getCell(row,col).getMageProb()));
+                    double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * ((double) (pitLeft - 1)/pitLeft);
+                    copy.getCell(r, c).setWumpusProb(wumpusProb);
+                    copy.getCell(r, c).setHeroProb(heroProb);
+                    copy.getCell(r, c).setMageProb(mageProb);
+                    copy.getCell(r, c).setPitProb(pitProb);
+                }
+            }
+            probabilities[3] = calculateFullObservationProbability(copy, observations, pieces);
+        }
         return probabilities;
     }
 
+    public double calculateFullObservationProbability(Grid map, ArrayList<Cell> observations, ArrayList<Cell> pieces){
+        ArrayList<Cell> dontCheck = new ArrayList<Cell>();
+        dontCheck.addAll(pieces);
+        ArrayList<Cell> neighborsPossible = new ArrayList<Cell>();
+        for(Cell piece : pieces){
+            ArrayList<Cell> neighbors = map.getNeighbors(piece.getRow(), piece.getCol());
+            for(Cell neighbor : neighbors){
+                if(!dontCheck.contains(neighbor)){
+                    dontCheck.add(neighbor);
+                    neighborsPossible.add(neighbor);
+                }
+                if(!observations.contains(piece)){
+                    neighborsPossible.remove(neighbor);
+                }
+            }
+        }
+        ArrayList<Double> summations = new ArrayList<Double>();
+        for(Cell observation : observations){
+            double pieceObservationProbability = 0;
+            ArrayList<Cell> neighbors = map.getNeighbors(observation.getRow(), observation.getCol());
+            for(char type : observation.observations){
+                for(Cell neighbor : neighbors){
+                    if(neighborsPossible.contains(neighbor)){
+                        switch (type) {
+                            case 'S':
+                                pieceObservationProbability += neighbor.getWumpusProb();
+                                break;
+                            case 'N':
+                                pieceObservationProbability += neighbor.getHeroProb();
+                                break;
+                            case 'F':
+                                pieceObservationProbability += neighbor.getMageProb();
+                                break;
+                            case 'B':
+                                pieceObservationProbability += neighbor.getPitProb();
+                                break;
+                            default:
+                                System.out.println("Error occurred when trying to normalize the probabilities of each piece");
+                        }
+                    }
+                }
+            }
+            summations.add(pieceObservationProbability);
+        }
+        double otherCells = 0;
+        for(int row = 0; row < map.getMapSize(); row++){
+            for(int col = 0; col < map.getMapSize(); col++){
+                Cell checkCell = map.getCell(row, col);
+                if(dontCheck.contains(checkCell)){
+                    continue;
+                }else{
+                    otherCells += checkCell.getWumpusProb();
+                    otherCells += checkCell.getHeroProb();
+                    otherCells += checkCell.getMageProb();
+                    otherCells += checkCell.getPitProb();
+                }
+            }
+        }
+        summations.add(otherCells);
+        double ObservationProbability = 1;
+        for(double value : summations){
+            ObservationProbability *= value;
+        }
+        return ObservationProbability;
+    }
 
     /**
      * Updates the current probabilities to the one specified in the parameter

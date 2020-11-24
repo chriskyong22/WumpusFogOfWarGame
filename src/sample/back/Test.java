@@ -9,7 +9,7 @@ public class Test {
         Logic search = new Logic(original, 4);
         System.out.println("Initial Map Visual:");
         original.printMap();
-        Cell start = original.getCell(0,2);
+        Cell start = original.getCell(0,1);
         Cell goal = original.getCell(3, 1);
         search.move(start, goal);
         System.out.println("Fog of War Visual");

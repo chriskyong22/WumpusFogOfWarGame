@@ -391,7 +391,13 @@ public class Logic {
                     double wumpusProb = wumpusLeft == 0 ? 0 : map.getCell(r, c).getWumpusProb() * (1.0 - (map.getCell(row,col).getWumpusProb()));
                     double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * (1.0 - (map.getCell(row, col).getHeroProb()));
                     double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * (1.0 - (map.getCell(row,col).getMageProb()));
-                    double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * ((double) (pitLeft - 1)/pitLeft);
+                    double pitProb = 0;
+                    if(r == row){
+                        pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * ((double) (pitLeft - 1)/pitLeft);
+                    }else{
+                        pitProb = map.getCell(r, c).getPitProb();
+                    }
+
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);
                     copy.getCell(r, c).setMageProb(mageProb);

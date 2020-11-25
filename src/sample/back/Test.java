@@ -15,6 +15,7 @@ public class Test {
         System.out.println("Fog of War Visual");
         Grid fogOfWar = search.render(true);
         fogOfWar.printMap();
+        search.printObservations();
         fogOfWar = search.render(false);
         search.calculateRandomMoveProbability(fogOfWar, false);
         search.updateStateProbabilities(fogOfWar);
@@ -34,5 +35,8 @@ public class Test {
         fogOfWar = search.render(false);
         Move bestMove = search.policy();
         bestMove.print();
+        fogOfWar = search.render(true);
+        fogOfWar.printMap();
+        search.printObservations();
     }
 }

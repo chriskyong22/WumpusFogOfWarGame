@@ -547,16 +547,24 @@ public class Logic {
                     char type = neighbor.getType();
                     switch(type){
                         case 'P':
-                            fogOfWar.getCell(row, col).observations.add('B'); //Breeze
+                            if(!fogOfWar.getCell(row, col).observations.contains('B')){
+                                fogOfWar.getCell(row, col).observations.add('B'); //Breeze
+                            }
                             break;
                         case 'W':
-                            fogOfWar.getCell(row, col).observations.add('S'); //Stench
+                            if(!fogOfWar.getCell(row, col).observations.contains('S')){
+                                fogOfWar.getCell(row, col).observations.add('S'); //Stench
+                            }
                             break;
                         case 'H':
-                            fogOfWar.getCell(row, col).observations.add('N'); //Hero Moving
+                            if(!fogOfWar.getCell(row, col).observations.contains('N')){
+                                fogOfWar.getCell(row, col).observations.add('N'); //Hero Moving
+                            }
                             break;
                         case 'M':
-                            fogOfWar.getCell(row, col).observations.add('F'); //Fire Magic
+                            if(!fogOfWar.getCell(row, col).observations.contains('F')){
+                                fogOfWar.getCell(row, col).observations.add('F'); //Fire Magic
+                            }
                             break;
                         default:
                             System.out.println("An error occurred when setting the observations!");

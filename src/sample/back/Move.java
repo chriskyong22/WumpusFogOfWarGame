@@ -46,7 +46,7 @@ public class Move {
     @Override
     public String toString() {
         // added this for testing purposes
-        return "" + this.heuristicValue;
+        return origin.getRow() + ":" + origin.getCol() + " to " + goal.getRow() + ":" + goal.getCol() + " with reward " + this.heuristicValue;
     }
 
     @Override

@@ -71,8 +71,13 @@ public class Logic {
         //AI makes a move
         Move bestMove = policy();
         this.bestMove = bestMove; //Used to retrieve the value to print the UI
-        move(bestMove.getOrigin(), bestMove.getGoal());
+        System.out.println("Best move: " + bestMove.toString());
+        Cell origin = map.getCell(bestMove.getOrigin().getRow(), bestMove.getOrigin().getCol());
+        Cell goal = map.getCell(bestMove.getGoal().getRow(), bestMove.getGoal().getCol());
+        move(origin, goal);
+        map.printMap();
         fogOfWar = generateObservations(false);
+        fogOfWar.printMap();
         updateStateProbabilities(fogOfWar);
 
         //Calculate possible moves the Player can make

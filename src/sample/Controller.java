@@ -42,7 +42,7 @@ public class Controller {
     private Label probLabel;
 
     Grid g = new Grid();
-    //Logic l = new Logic(g,3);
+    Logic l = new Logic(g,3);
     //String[] heuristics = new String[]{"1. Distance To Pits","2. Closest Killable Enemy","3. Difference in Pieces","4. Total Pieces", "5. Maximum Distance From Threat", "6. Weighted Heuristics 1-5"};
     Point start = null;
     Point goal = null;
@@ -63,7 +63,7 @@ public class Controller {
 
         int dimension = Integer.parseInt(dimField.getText());
         g = new Grid(dimension);
-        //l = new Logic(g,3);
+        l = new Logic(g,3);
         buildGrid(g);
     }
 
@@ -100,6 +100,7 @@ public class Controller {
         Image pwumpus = new Image("/sample/pwumpus.png");
         Image aiwumpus = new Image("/sample/aiwumpus.png");
         Image empty = new Image("/sample/empty.png");
+        Image fog = new Image("/sample/fog.png");
 
         for (int y = 0; y < dim; y++){
             for (int x = 0; x < dim; x++){
@@ -147,6 +148,8 @@ public class Controller {
                     case 'P':
                         cells[x][y].setImage(pit);
                         break;
+                    case '?':
+                        cells[x][y].setImage(fog);
                 }
 
                 gridPane.getChildren().add(cells[x][y]);
@@ -171,12 +174,12 @@ public class Controller {
         }
         Cell startCell = g.getCell((int) start.getY(),(int) start.getX());
         Cell goalCell = g.getCell((int) goal.getY(),(int) goal.getX());
-        /*
+
         if(l.validPlayerMove(startCell,goalCell)) {
             l.move(startCell, goalCell);
             buildGrid(g);
             currLabel.setText("Moving to: [" + x + "," + y + "]");
-        }*/
+        }
         start = null;
         goal = null;
     }
@@ -186,7 +189,7 @@ public class Controller {
      */
     @FXML
     private void noFog(){
-
+        buildGrid(l.getFullState());
     }
 
     /**
@@ -194,6 +197,7 @@ public class Controller {
      */
     @FXML
     private void playerFog(){
+        buildGrid(l.render(true));
 
     }
 
@@ -202,7 +206,7 @@ public class Controller {
      */
     @FXML
     private void aiFog(){
-
+        buildGrid(l.render(false));
     }
 
     /**

@@ -29,7 +29,9 @@ public class Test {
         fogOfWar.printMap();
         search.printObservations();
         search.updateStateProbabilities(fogOfWar);
-
+        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.updateStateProbabilities(fogOfWar);
+        fogOfWar = search.render(false);
         Move bestMove = search.policy();
         bestMove.print();
     }

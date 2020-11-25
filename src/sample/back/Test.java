@@ -17,11 +17,11 @@ public class Test {
         fogOfWar.printMap();
         search.printObservations();
         fogOfWar = search.render(false);
-        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.calculateRandomMoveProbability(fogOfWar, false, 0);
         search.updateStateProbabilities(fogOfWar);
-        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.calculateRandomMoveProbability(fogOfWar, false, 0);
         search.updateStateProbabilities(fogOfWar);
-        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.calculateRandomMoveProbability(fogOfWar, false, 0);
         search.updateStateProbabilities(fogOfWar);
         Cell AIStart = original.getCell(5,0);
         Cell AIGoal = original.getCell(4, 1);
@@ -30,7 +30,7 @@ public class Test {
         fogOfWar.printMap();
         search.printObservations();
         search.updateStateProbabilities(fogOfWar);
-        search.calculateRandomMoveProbability(fogOfWar, false);
+        search.calculateRandomMoveProbability(fogOfWar, false, 0);
         search.updateStateProbabilities(fogOfWar);
         fogOfWar = search.render(false);
         Move bestMove = search.policy();

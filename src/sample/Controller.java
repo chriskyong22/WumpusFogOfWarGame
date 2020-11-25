@@ -250,7 +250,10 @@ public class Controller {
 
         valueLabel.setText("Move Value: \n" + val);
          */
-        buildGrid(l.AInextTurn());
+
+        //HAVE TO SET TO THE SELECTOR IN THE UI (TO ADD)
+        int playerMovementChoice = 0;
+        buildGrid(l.AInextTurn(playerMovementChoice));
 
         //buildGrid(g);
         int gameCon = l.checkWin();

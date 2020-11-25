@@ -50,7 +50,7 @@ public class Logic {
                 fogOfWar.setProbability(map.getCell(row, col), row, col);
             }
         }
-        calculateRandomMoveProbability(fogOfWar, false);
+        calculateRandomMoveProbability(fogOfWar, false, 0);
         updateStateProbabilities(fogOfWar);
     }
 
@@ -63,7 +63,7 @@ public class Logic {
         return generateObservations(isPlayer);
     }
 
-    public Grid AInextTurn(){
+    public Grid AInextTurn(int playerMovement){
         //Player Move
         Grid fogOfWar = generateObservations(false);
         updateStateProbabilities(fogOfWar);
@@ -76,7 +76,7 @@ public class Logic {
         updateStateProbabilities(fogOfWar);
 
         //Calculate possible moves the Player can make
-        calculateRandomMoveProbability(fogOfWar, false);
+        calculateRandomMoveProbability(fogOfWar, false, playerMovement);
         updateStateProbabilities(fogOfWar);
 
         //Return a map containing the player view of the board
@@ -153,23 +153,30 @@ public class Logic {
      * Part 2 of the project (Before the observations are made, calculate and set the probabilities of the opponent's move choices)
      * @param fogOfWar
      * @param isPlayer
+     * @param playerMovement
      */
-    public void calculateRandomMoveProbability(Grid fogOfWar, boolean isPlayer){
+    public void calculateRandomMoveProbability(Grid fogOfWar, boolean isPlayer, int playerMovement){
         if(isPlayer){
 
         }else{
-            for(int row = 0; row < map.getMapSize(); row++){
-                for(int col = 0; col < map.getMapSize(); col++){
-                    int playerPieces = map.getPlayerCount();
-                    double[] neighborMovingProbability = neighborMovingProbability(row, col, isPlayer);
-                    double wumpusProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0];
-                    double heroProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1];
-                    double mageProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) + neighborMovingProbability[2];
-                    fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
-                    fogOfWar.getCell(row, col).setHeroProb(heroProb);
-                    fogOfWar.getCell(row, col).setMageProb(mageProb);
-                    fogOfWar.getCell(row, col).setPitProb(map.getCell(row, col).getPitProb());
-                }
+            switch (playerMovement) {
+                case '1':
+                    break;
+                default:
+                    for(int row = 0; row < map.getMapSize(); row++){
+                        for(int col = 0; col < map.getMapSize(); col++){
+                            int playerPieces = map.getPlayerCount();
+                            double[] neighborMovingProbability = neighborMovingProbability(row, col, isPlayer);
+                            double wumpusProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0];
+                            double heroProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1];
+                            double mageProb = ((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) + neighborMovingProbability[2];
+                            fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
+                            fogOfWar.getCell(row, col).setHeroProb(heroProb);
+                            fogOfWar.getCell(row, col).setMageProb(mageProb);
+                            fogOfWar.getCell(row, col).setPitProb(map.getCell(row, col).getPitProb());
+                        }
+                    }
+                    break;
             }
         }
     }

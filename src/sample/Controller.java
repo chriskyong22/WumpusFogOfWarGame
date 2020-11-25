@@ -3,15 +3,19 @@ package sample;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
 import sample.back.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Controller {
 
@@ -22,28 +26,38 @@ public class Controller {
     private TextField dimField;
     @FXML
     private Pane gridPane;
-    @FXML
-    private TextField depthField;
-    @FXML
-    private Label valueLabel;
-    @FXML
-    private ListView<String> heuristicList;
+    //@FXML
+    //private TextField depthField;
+    //@FXML
+    //private Label valueLabel;
+    //@FXML
+    //private ListView<String> heuristicList;
     @FXML
     private Label currLabel;
     @FXML
     private Label legendLabel;
+    @FXML
+    private RadioButton randRadio;
+    @FXML
+    private RadioButton custRadio;
+    @FXML
+    private Label probLabel;
+    @FXML
+    private TextArea playerObsArea;
+    @FXML
+    private TextArea aiObsArea;
 
     Grid g = new Grid();
     Logic l = new Logic(g,3);
-    String[] heuristics = new String[]{"1. Distance To Pits","2. Closest Killable Enemy","3. Difference in Pieces","4. Total Pieces", "5. Maximum Distance From Threat", "6. Weighted Heuristics 1-5"};
+    //String[] heuristics = new String[]{"1. Distance To Pits","2. Closest Killable Enemy","3. Difference in Pieces","4. Total Pieces", "5. Maximum Distance From Threat", "6. Weighted Heuristics 1-5"};
     Point start = null;
     Point goal = null;
 
 
     @FXML
     public void initialize(){
-        heuristicList.getItems().addAll(heuristics);
-        legendLabel.setText("Legend: Blue - Player Pieces, Green - AI Pieces.\nDefault Depth: 3.\nDefault Heuristic: Heuristic 0.");
+        //heuristicList.getItems().addAll(heuristics);
+        legendLabel.setText("Legend: Blue - Player Pieces, Green - AI Pieces.\nDefault Player Movement Model: Random Movement.");
     }
 
 
@@ -61,11 +75,12 @@ public class Controller {
 
     /**
      * Sets the search depth per user selection. Default is 3.
-     */
+
     @FXML
     public void selectDepth(){
         l = new Logic(g,(int) Double.parseDouble(depthField.getText()));
     }
+    */
 
     /**
      * Builds a grid in the output pane
@@ -91,6 +106,7 @@ public class Controller {
         Image pwumpus = new Image("/sample/pwumpus.png");
         Image aiwumpus = new Image("/sample/aiwumpus.png");
         Image empty = new Image("/sample/empty.png");
+        Image fog = new Image("/sample/fog.png");
 
         for (int y = 0; y < dim; y++){
             for (int x = 0; x < dim; x++){
@@ -101,7 +117,9 @@ public class Controller {
                 cells[x][y].setFitWidth(size);
                 cells[x][y].setX(offset + x*(size + gap));
                 cells[x][y].setY(offset + y*(size + gap));
-                cells[x][y].setOnMouseClicked(e -> select(finalX,finalY));
+                cells[x][y].setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY) select(finalX,finalY);
+                    else if (e.getButton() == MouseButton.SECONDARY) showProbability(finalX,finalY);});
                 Cell currCell = g.map[y][x];
                 Image hero = null;
                 Image wumpus = null;
@@ -136,6 +154,8 @@ public class Controller {
                     case 'P':
                         cells[x][y].setImage(pit);
                         break;
+                    case '?':
+                        cells[x][y].setImage(fog);
                 }
 
                 gridPane.getChildren().add(cells[x][y]);
@@ -160,9 +180,20 @@ public class Controller {
         }
         Cell startCell = g.getCell((int) start.getY(),(int) start.getX());
         Cell goalCell = g.getCell((int) goal.getY(),(int) goal.getX());
+
         if(l.validPlayerMove(startCell,goalCell)) {
             l.move(startCell, goalCell);
-            buildGrid(g);
+            ArrayList<Cell> observations = new ArrayList<>();
+            Grid tmp = l.render(true);
+            buildGrid(tmp);
+            observations = l.getObservations();
+            System.out.println(observations.toString());
+            if(!observations.isEmpty()) {
+                for (Cell o : observations) {
+                    playerObsArea.setText(playerObsArea.getText() + "\nPlayer Observed" + mapTypeToString(o.getType()) + " from" + "(" + Integer.toString(o.getRow()) + ", " + Integer.toString(o.getCol()) + ")");
+                }
+            }
+
             currLabel.setText("Moving to: [" + x + "," + y + "]");
         }
         start = null;
@@ -170,10 +201,44 @@ public class Controller {
     }
 
     /**
+     * Toggles no fog
+     */
+    @FXML
+    private void noFog(){
+        buildGrid(l.getFullState());
+    }
+
+    /**
+     * Toggles player fog only
+     */
+    @FXML
+    private void playerFog(){
+        buildGrid(l.render(true));
+
+    }
+
+    /**
+     * Toggles ai fog only
+     */
+    @FXML
+    private void aiFog(){
+        buildGrid(l.render(false));
+    }
+
+    /**
+     * shows probability of selected cell
+     * @param x - cell x position
+     * @param y - cell y position
+     */
+    public void showProbability(int x, int y){
+
+    }
+    /**
      * Runs the AI's move and checks if the game is over.
      */
     @FXML
     private void nextTurn(){
+        /*
         double val;
         int heuristicSelected = heuristicList.getSelectionModel().getSelectedIndex();
         if(heuristicSelected == -1){
@@ -182,8 +247,12 @@ public class Controller {
         else{val = l.run(heuristicSelected);}
 
         valueLabel.setText("Move Value: \n" + val);
-        buildGrid(g);
+         */
+        buildGrid(l.AInextTurn());
+
+        //buildGrid(g);
         int gameCon = l.checkWin();
+
         switch (gameCon){
             case 0:
                 gameStatusLabel.setText("Game Status: \n It's a Draw");
@@ -198,5 +267,19 @@ public class Controller {
                 gameStatusLabel.setText("Game Status: \n In Progress");
                 break;
         }
+    }
+
+    private String mapTypeToString(char c){
+        switch (c){
+            case 'F':
+                return "Fire Magic";
+            case 'B':
+                return "Breeze";
+            case 'S':
+                return "Stench";
+            case 'N':
+                return "Noise";
+        }
+        return "";
     }
 }

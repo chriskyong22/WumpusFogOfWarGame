@@ -119,7 +119,7 @@ public class Controller {
                 cells[x][y].setY(offset + y*(size + gap));
                 cells[x][y].setOnMouseClicked(e -> {
                     if (e.getButton() == MouseButton.PRIMARY) select(finalX,finalY);
-                    else if (e.getButton() == MouseButton.SECONDARY) showProbability(finalX,finalY);});
+                    else if (e.getButton() == MouseButton.SECONDARY) showProbability(finalX,finalY, g);});
                 Cell currCell = g.map[y][x];
                 Image hero = null;
                 Image wumpus = null;
@@ -163,6 +163,7 @@ public class Controller {
             }
         }
     }
+
 
     /**
      * Selects a start/goal pair based on user input.
@@ -252,8 +253,12 @@ public class Controller {
      * @param x - cell x position
      * @param y - cell y position
      */
-    public void showProbability(int x, int y){
-
+    public void showProbability(int x, int y, Grid g){
+        System.out.println("X:" + x + " Y: " + y);
+        System.out.println("Wumpus Prob " + g.getCell(x, y).getWumpusProb());
+        System.out.println("Mage Prob " + g.getCell(x, y).getWumpusProb());
+        System.out.println("Hero Prob " + g.getCell(x, y).getWumpusProb());
+        System.out.println("Pit Prob " + g.getCell(x, y).getWumpusProb());
     }
     /**
      * Runs the AI's move and checks if the game is over.

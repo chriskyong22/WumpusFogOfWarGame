@@ -75,7 +75,6 @@ public class Logic {
         Cell origin = map.getCell(bestMove.getOrigin().getRow(), bestMove.getOrigin().getCol());
         Cell goal = map.getCell(bestMove.getGoal().getRow(), bestMove.getGoal().getCol());
         move(origin, goal);
-        map.printMap();
         fogOfWar = generateObservations(false);
         fogOfWar.printMap();
         updateStateProbabilities(fogOfWar);

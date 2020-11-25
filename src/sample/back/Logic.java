@@ -76,7 +76,6 @@ public class Logic {
         Cell goal = map.getCell(bestMove.getGoal().getRow(), bestMove.getGoal().getCol());
         move(origin, goal);
         fogOfWar = generateObservations(false);
-        fogOfWar.printMap();
         updateStateProbabilities(fogOfWar);
 
         //Calculate possible moves the Player can make

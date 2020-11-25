@@ -187,10 +187,12 @@ public class Controller {
             Grid tmp = l.render(true);
             buildGrid(tmp);
             observations = l.getObservations();
-            System.out.println(observations.toString());
             if(!observations.isEmpty()) {
                 for (Cell o : observations) {
-                    playerObsArea.setText(playerObsArea.getText() + "\nPlayer Observed" + mapTypeToString(o.getType()) + " from" + "(" + Integer.toString(o.getRow()) + ", " + Integer.toString(o.getCol()) + ")");
+                    ArrayList<Character> obs = o.observations;
+                    for (Character c : obs) {
+                        playerObsArea.setText(playerObsArea.getText() + "\nPlayer Observed " + mapTypeToString(c) + " at " + "(" + Integer.toString(o.getRow()) + ", " + Integer.toString(o.getCol()) + ")");
+                    }
                 }
             }
 

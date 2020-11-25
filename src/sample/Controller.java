@@ -194,6 +194,7 @@ public class Controller {
                         playerObsArea.setText(playerObsArea.getText() + "\nPlayer Observed " + mapTypeToString(c) + " at " + "(" + Integer.toString(o.getRow()) + ", " + Integer.toString(o.getCol()) + ")");
                     }
                 }
+                playerObsArea.appendText("\n");
             }
 
             currLabel.setText("Moving to: [" + x + "," + y + "]");
@@ -216,7 +217,16 @@ public class Controller {
     @FXML
     private void playerFog(){
         buildGrid(l.render(true));
-
+        ArrayList<Cell> observations = l.getObservations();
+        if(!observations.isEmpty()) {
+            for (Cell o : observations) {
+                ArrayList<Character> obs = o.observations;
+                for (Character c : obs) {
+                    playerObsArea.setText(playerObsArea.getText() + "\nPlayer Observed " + mapTypeToString(c) + " at " + "(" + Integer.toString(o.getRow()) + ", " + Integer.toString(o.getCol()) + ")");
+                }
+            }
+            playerObsArea.appendText("\n");
+        }
     }
 
     /**
@@ -225,6 +235,16 @@ public class Controller {
     @FXML
     private void aiFog(){
         buildGrid(l.render(false));
+        ArrayList<Cell> observations = l.getObservations();
+        if(!observations.isEmpty()) {
+            for (Cell o : observations) {
+                ArrayList<Character> obs = o.observations;
+                for (Character c : obs) {
+                    aiObsArea.setText(aiObsArea.getText() + "\nAI Observed " + mapTypeToString(c) + " at " + "(" + Integer.toString(o.getRow()) + ", " + Integer.toString(o.getCol()) + ")");
+                }
+            }
+            aiObsArea.appendText("\n");
+        }
     }
 
     /**

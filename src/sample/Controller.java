@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -14,6 +15,7 @@ import javafx.scene.paint.Color;
 import sample.back.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Controller {
 
@@ -40,6 +42,10 @@ public class Controller {
     private RadioButton custRadio;
     @FXML
     private Label probLabel;
+    @FXML
+    private TextArea playerObsArea;
+    @FXML
+    private TextArea aiObsArea;
 
     Grid g = new Grid();
     Logic l = new Logic(g,3);
@@ -177,7 +183,17 @@ public class Controller {
 
         if(l.validPlayerMove(startCell,goalCell)) {
             l.move(startCell, goalCell);
-            buildGrid(g);
+            ArrayList<Cell> observations = new ArrayList<>();
+            Grid tmp = l.render(true);
+            buildGrid(tmp);
+            observations = l.getObservations();
+            System.out.println(observations.toString());
+            if(!observations.isEmpty()) {
+                for (Cell o : observations) {
+                    playerObsArea.setText(playerObsArea.getText() + "\nPlayer Observed" + mapTypeToString(o.getType()) + " from" + "(" + Integer.toString(o.getRow()) + ", " + Integer.toString(o.getCol()) + ")");
+                }
+            }
+
             currLabel.setText("Moving to: [" + x + "," + y + "]");
         }
         start = null;
@@ -232,10 +248,11 @@ public class Controller {
 
         valueLabel.setText("Move Value: \n" + val);
          */
+        buildGrid(l.AInextTurn());
 
-        buildGrid(g);
-        //int gameCon = l.checkWin();
-        /*
+        //buildGrid(g);
+        int gameCon = l.checkWin();
+
         switch (gameCon){
             case 0:
                 gameStatusLabel.setText("Game Status: \n It's a Draw");
@@ -250,7 +267,19 @@ public class Controller {
                 gameStatusLabel.setText("Game Status: \n In Progress");
                 break;
         }
-        */
+    }
 
+    private String mapTypeToString(char c){
+        switch (c){
+            case 'F':
+                return "Fire Magic";
+            case 'B':
+                return "Breeze";
+            case 'S':
+                return "Stench";
+            case 'N':
+                return "Noise";
+        }
+        return "";
     }
 }

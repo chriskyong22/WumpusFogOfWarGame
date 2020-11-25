@@ -3,9 +3,11 @@ package sample;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
@@ -22,28 +24,34 @@ public class Controller {
     private TextField dimField;
     @FXML
     private Pane gridPane;
-    @FXML
-    private TextField depthField;
-    @FXML
-    private Label valueLabel;
-    @FXML
-    private ListView<String> heuristicList;
+    //@FXML
+    //private TextField depthField;
+    //@FXML
+    //private Label valueLabel;
+    //@FXML
+    //private ListView<String> heuristicList;
     @FXML
     private Label currLabel;
     @FXML
     private Label legendLabel;
+    @FXML
+    private RadioButton randRadio;
+    @FXML
+    private RadioButton custRadio;
+    @FXML
+    private Label probLabel;
 
     Grid g = new Grid();
-    Logic l = new Logic(g,3);
-    String[] heuristics = new String[]{"1. Distance To Pits","2. Closest Killable Enemy","3. Difference in Pieces","4. Total Pieces", "5. Maximum Distance From Threat", "6. Weighted Heuristics 1-5"};
+    //Logic l = new Logic(g,3);
+    //String[] heuristics = new String[]{"1. Distance To Pits","2. Closest Killable Enemy","3. Difference in Pieces","4. Total Pieces", "5. Maximum Distance From Threat", "6. Weighted Heuristics 1-5"};
     Point start = null;
     Point goal = null;
 
 
     @FXML
     public void initialize(){
-        heuristicList.getItems().addAll(heuristics);
-        legendLabel.setText("Legend: Blue - Player Pieces, Green - AI Pieces.\nDefault Depth: 3.\nDefault Heuristic: Heuristic 0.");
+        //heuristicList.getItems().addAll(heuristics);
+        legendLabel.setText("Legend: Blue - Player Pieces, Green - AI Pieces.\nDefault Player Movement Model: Random Movement.");
     }
 
 
@@ -55,17 +63,18 @@ public class Controller {
 
         int dimension = Integer.parseInt(dimField.getText());
         g = new Grid(dimension);
-        l = new Logic(g,3);
+        //l = new Logic(g,3);
         buildGrid(g);
     }
 
     /**
      * Sets the search depth per user selection. Default is 3.
-     */
+
     @FXML
     public void selectDepth(){
         l = new Logic(g,(int) Double.parseDouble(depthField.getText()));
     }
+    */
 
     /**
      * Builds a grid in the output pane
@@ -101,7 +110,9 @@ public class Controller {
                 cells[x][y].setFitWidth(size);
                 cells[x][y].setX(offset + x*(size + gap));
                 cells[x][y].setY(offset + y*(size + gap));
-                cells[x][y].setOnMouseClicked(e -> select(finalX,finalY));
+                cells[x][y].setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY) select(finalX,finalY);
+                    else if (e.getButton() == MouseButton.SECONDARY) showProbability(finalX,finalY);});
                 Cell currCell = g.map[y][x];
                 Image hero = null;
                 Image wumpus = null;
@@ -160,20 +171,54 @@ public class Controller {
         }
         Cell startCell = g.getCell((int) start.getY(),(int) start.getX());
         Cell goalCell = g.getCell((int) goal.getY(),(int) goal.getX());
+        /*
         if(l.validPlayerMove(startCell,goalCell)) {
             l.move(startCell, goalCell);
             buildGrid(g);
             currLabel.setText("Moving to: [" + x + "," + y + "]");
-        }
+        }*/
         start = null;
         goal = null;
     }
 
     /**
+     * Toggles no fog
+     */
+    @FXML
+    private void noFog(){
+
+    }
+
+    /**
+     * Toggles player fog only
+     */
+    @FXML
+    private void playerFog(){
+
+    }
+
+    /**
+     * Toggles ai fog only
+     */
+    @FXML
+    private void aiFog(){
+
+    }
+
+    /**
+     * shows probability of selected cell
+     * @param x - cell x position
+     * @param y - cell y position
+     */
+    public void showProbability(int x, int y){
+
+    }
+    /**
      * Runs the AI's move and checks if the game is over.
      */
     @FXML
     private void nextTurn(){
+        /*
         double val;
         int heuristicSelected = heuristicList.getSelectionModel().getSelectedIndex();
         if(heuristicSelected == -1){
@@ -182,8 +227,11 @@ public class Controller {
         else{val = l.run(heuristicSelected);}
 
         valueLabel.setText("Move Value: \n" + val);
+         */
+
         buildGrid(g);
-        int gameCon = l.checkWin();
+        //int gameCon = l.checkWin();
+        /*
         switch (gameCon){
             case 0:
                 gameStatusLabel.setText("Game Status: \n It's a Draw");
@@ -198,5 +246,7 @@ public class Controller {
                 gameStatusLabel.setText("Game Status: \n In Progress");
                 break;
         }
+        */
+
     }
 }

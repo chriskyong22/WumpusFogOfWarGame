@@ -235,7 +235,7 @@ public class Logic {
 
     public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces){
         double observationProbability = calculateFullObservationProbability(this.map, observations, pieces);
-        for(int row = 0; row < map.getMapSize(); row++){
+         for(int row = 0; row < map.getMapSize(); row++){
             for(int col = 0; col < map.getMapSize(); col++){
                 Cell temp = map.getCell(row, col);
                 if(pieces.contains(temp)){ // If the cell is an AI piece, obviously no chance for wumpus/hero/mage/pit
@@ -247,12 +247,26 @@ public class Logic {
                 }
                 double[] probabilities = getCurrentProbabilities(row, col);
                 double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
-
+                if(observationProbability == 0){
+                    System.out.println("ERROR");
+                }
                 double wumpusProb = (probabilities[0] * observationGivenPiece[0]) / observationProbability;
                 double heroProb = (probabilities[1] * observationGivenPiece[1]) / observationProbability;
                 double mageProb = (probabilities[2] * observationGivenPiece[2]) / observationProbability;
                 double pitProb = (probabilities[3] * observationGivenPiece[3]) / observationProbability;
 
+                if(wumpusProb > 1){
+                    wumpusProb = 1;
+                }
+                if(heroProb > 1){
+                    heroProb = 1;
+                }
+                if(mageProb > 1){
+                    mageProb = 1;
+                }
+                if(pitProb > 1){
+                    pitProb = 1;
+                }
                 fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
                 fogOfWar.getCell(row, col).setHeroProb(heroProb);
                 fogOfWar.getCell(row, col).setMageProb(mageProb);
@@ -426,10 +440,22 @@ public class Logic {
         return probabilities;
     }
 
+    private int factorial(int n) {
+        int fact = 1;
+        int i = 1;
+        while(i <= n) {
+            fact *= i;
+            i++;
+        }
+        return fact;
+    }
+
     public double calculateFullObservationProbability(Grid map, ArrayList<Cell> observations, ArrayList<Cell> pieces){
+        /*
         ArrayList<Cell> dontCheck = new ArrayList<Cell>();
         dontCheck.addAll(pieces);
         ArrayList<Cell> neighborsPossible = new ArrayList<Cell>();
+
         for(Cell piece : pieces){
             ArrayList<Cell> neighbors = map.getNeighbors(piece.getRow(), piece.getCol());
             for(Cell neighbor : neighbors){
@@ -442,6 +468,33 @@ public class Logic {
                 }
             }
         }
+        */
+
+        int playerPiece = map.getPlayerCount();
+        int totalCells = map.getMapSize() * map.getMapSize();
+        int occupiedCells = map.getAICount() + map.getPlayerCount() + ((map.getMapSize() - 2) * map.getPitsPerRow());
+        int numOfEmptyCells = totalCells - occupiedCells;
+        double observeProb = 1;
+        int playerPcsExamined = 0;
+
+        for(Cell observation : observations){
+            if(observation.observations.contains("B")){
+                playerPcsExamined -= 1;
+            }
+            ArrayList<Cell> possibleMoves = possibleMoves(observation);
+            int n = possibleMoves.size();
+            int o = observation.observations.size();
+            observeProb *= ((double) factorial(n) / factorial(n-o));
+            playerPcsExamined += o;
+        }
+
+        int value = (playerPiece - playerPcsExamined);
+        observeProb *= ((double) factorial(numOfEmptyCells) / factorial(numOfEmptyCells - value));
+        observeProb /= ((double) factorial(totalCells) / factorial(totalCells - occupiedCells));
+        System.out.println("[DEBUG] Observe Prob: " + observeProb);
+        return observeProb;
+
+        /*
         ArrayList<Double> summations = new ArrayList<Double>();
         for(Cell observation : observations){
             double pieceObservationProbability = 0;
@@ -490,6 +543,7 @@ public class Logic {
             ObservationProbability *= value;
         }
         return ObservationProbability;
+         */
     }
 
     /**

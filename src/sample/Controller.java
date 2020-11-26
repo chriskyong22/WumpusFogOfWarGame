@@ -254,11 +254,18 @@ public class Controller {
      * @param y - cell y position
      */
     public void showProbability(int x, int y, Grid g){
+        double wumpProb =  g.getCell(y, x).getWumpusProb();
+        double mageProb = g.getCell(y, x).getMageProb();
+        double heroProb = g.getCell(y, x).getHeroProb();
+        double pitProb = g.getCell(y, x).getPitProb();
+        probLabel.setText("Wumpus Probability: " + wumpProb + "\nMage Probability: "+ mageProb + "\nHero Prob: "+heroProb+"\nPit Probability: "+pitProb);
+        /*
         System.out.println("X:" + x + " Y: " + y);
         System.out.println("Wumpus Prob " + g.getCell(y, x).getWumpusProb());
         System.out.println("Mage Prob " + g.getCell(y, x).getMageProb());
         System.out.println("Hero Prob " + g.getCell(y, x).getHeroProb());
         System.out.println("Pit Prob " + g.getCell(y, x).getPitProb());
+         */
     }
     /**
      * Runs the AI's move and checks if the game is over.

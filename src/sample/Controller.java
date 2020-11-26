@@ -70,10 +70,10 @@ public class Controller {
         int dimension = Integer.parseInt(dimField.getText());
         g = new Grid(dimension);
         l = new Logic(g,3);
-        buildGrid(g);
+        buildGrid(l.render(true));
     }
 
-    /**
+    /*
      * Sets the search depth per user selection. Default is 3.
 
     @FXML
@@ -184,10 +184,10 @@ public class Controller {
 
         if(l.validPlayerMove(startCell,goalCell)) {
             l.move(startCell, goalCell);
-            ArrayList<Cell> observations = new ArrayList<>();
+            //ArrayList<Cell> observations = new ArrayList<>();
             Grid tmp = l.render(true);
             buildGrid(tmp);
-            observations = l.getObservations();
+            ArrayList<Cell> observations = l.getObservations();
             if(!observations.isEmpty()) {
                 for (Cell o : observations) {
                     ArrayList<Character> obs = o.observations;
@@ -283,8 +283,12 @@ public class Controller {
         valueLabel.setText("Move Value: \n" + val);
          */
 
-        //HAVE TO SET TO THE SELECTOR IN THE UI (TO ADD)
-        int playerMovementChoice = 0;
+
+        int playerMovementChoice;
+        if (custRadio.isSelected()) playerMovementChoice = 1;
+        else playerMovementChoice = 0;
+        //g = l.AInextTurn(playerMovementChoice);
+
         buildGrid(l.AInextTurn(playerMovementChoice));
 
         //buildGrid(g);

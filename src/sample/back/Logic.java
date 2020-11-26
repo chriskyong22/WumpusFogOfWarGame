@@ -50,8 +50,6 @@ public class Logic {
                 fogOfWar.setProbability(map.getCell(row, col), row, col);
             }
         }
-        calculateRandomMoveProbability(fogOfWar, false, 0);
-        updateStateProbabilities(fogOfWar);
     }
 
     /**
@@ -64,6 +62,9 @@ public class Logic {
     }
 
     public Grid AInextTurn(int playerMovement){
+        //Calculate possible moves the Player can make
+        calculateRandomMoveProbability(map, false, playerMovement);
+
         //Player Move
         Grid fogOfWar = generateObservations(false);
         updateStateProbabilities(fogOfWar);
@@ -78,9 +79,6 @@ public class Logic {
         fogOfWar = generateObservations(false);
         updateStateProbabilities(fogOfWar);
 
-        //Calculate possible moves the Player can make
-        calculateRandomMoveProbability(fogOfWar, false, playerMovement);
-        updateStateProbabilities(fogOfWar);
 
         //Return a map containing the player view of the board
         fogOfWar = generateObservations(true);
@@ -250,7 +248,6 @@ public class Logic {
                 double[] probabilities = getCurrentProbabilities(row, col);
                 double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
 
-                //STILL NEED TO CALCULATE P(O), not sure how to do this, need to factor this into the wumpusProb/heroProb/mageProb/pitProb
                 double wumpusProb = (probabilities[0] * observationGivenPiece[0]) / observationProbability;
                 double heroProb = (probabilities[1] * observationGivenPiece[1]) / observationProbability;
                 double mageProb = (probabilities[2] * observationGivenPiece[2]) / observationProbability;
@@ -416,12 +413,7 @@ public class Logic {
                     double wumpusProb = wumpusLeft * (map.getCell(r,c).getWumpusProb() / totalWumpusProb);
                     double heroProb = heroLeft * (map.getCell(r,c).getHeroProb() / totalHeroProb);
                     double mageProb = mageLeft * (map.getCell(r,c).getMageProb() / totalMageProb);
-                    double pitProb = 0;
-                    if(r == row){
-                        pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * ((double) (pitLeft - 1)/pitLeft);
-                    }else{
-                        pitProb = map.getCell(r, c).getPitProb();
-                    }
+                    double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * ((double) (pitLeft - 1)/pitLeft);
 
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);

@@ -440,8 +440,8 @@ public class Logic {
         return probabilities;
     }
 
-    private int factorial(int n) {
-        int fact = 1;
+    private double factorial(int n) {
+        double fact = 1;
         int i = 1;
         while(i <= n) {
             fact *= i;
@@ -484,13 +484,13 @@ public class Logic {
             ArrayList<Cell> possibleMoves = possibleMoves(observation);
             int n = possibleMoves.size();
             int o = observation.observations.size();
-            observeProb *= ((double) factorial(n) / factorial(n-o));
+            observeProb *= (factorial(n) / factorial(n-o));
             playerPcsExamined += o;
         }
 
         int value = (playerPiece - playerPcsExamined);
-        observeProb *= ((double) factorial(numOfEmptyCells) / factorial(numOfEmptyCells - value));
-        observeProb /= ((double) factorial(totalCells) / factorial(totalCells - occupiedCells));
+        observeProb *= (factorial(numOfEmptyCells) / factorial(numOfEmptyCells - value));
+        observeProb /= (factorial(totalCells) / factorial(totalCells - occupiedCells));
         System.out.println("[DEBUG] Observe Prob: " + observeProb);
         return observeProb;
 

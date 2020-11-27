@@ -326,7 +326,7 @@ public class Logic {
         int wumpusLeft = map.getNumOfPWumpus();
         int heroLeft = map.getNumOfPWumpus();
         int mageLeft = map.getNumOfPWumpus();
-        int pitLeft = map.getPitsPerRow();
+        int pitLeft = map.getMapSize() - 2;
 
         double totalMageProb = 0;
         double totalHeroProb = 0;
@@ -451,7 +451,7 @@ public class Logic {
     }
 
     public double calculateFullObservationProbability(Grid map, ArrayList<Cell> observations, ArrayList<Cell> pieces){
-        /*
+
         ArrayList<Cell> dontCheck = new ArrayList<Cell>();
         dontCheck.addAll(pieces);
         ArrayList<Cell> neighborsPossible = new ArrayList<Cell>();
@@ -468,12 +468,12 @@ public class Logic {
                 }
             }
         }
-        */
 
+        /*
         int playerPiece = map.getPlayerCount();
         int totalCells = map.getMapSize() * map.getMapSize();
         int occupiedCells = map.getAICount() + map.getPlayerCount() + ((map.getMapSize() - 2) * map.getPitsPerRow());
-        int numOfEmptyCells = totalCells - occupiedCells;
+
         double observeProb = 1;
         int playerPcsExamined = 0;
 
@@ -487,14 +487,14 @@ public class Logic {
             observeProb *= (factorial(n) / factorial(n-o));
             playerPcsExamined += o;
         }
-
+        int numOfEmptyCells = totalCells - dontCheck.size();
         int value = (playerPiece - playerPcsExamined);
         observeProb *= (factorial(numOfEmptyCells) / factorial(numOfEmptyCells - value));
         observeProb /= (factorial(totalCells) / factorial(totalCells - occupiedCells));
         System.out.println("[DEBUG] Observe Prob: " + observeProb);
         return observeProb;
+        */
 
-        /*
         ArrayList<Double> summations = new ArrayList<Double>();
         for(Cell observation : observations){
             double pieceObservationProbability = 0;
@@ -543,7 +543,7 @@ public class Logic {
             ObservationProbability *= value;
         }
         return ObservationProbability;
-         */
+
     }
 
     /**

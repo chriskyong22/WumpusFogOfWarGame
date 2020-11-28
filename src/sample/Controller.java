@@ -41,7 +41,7 @@ public class Controller {
     @FXML
     private RadioButton custRadio;
     @FXML
-    private Label probLabel;
+    private TextArea probLabel;
     @FXML
     private TextArea playerObsArea;
     @FXML

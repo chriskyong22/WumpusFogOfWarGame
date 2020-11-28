@@ -186,7 +186,7 @@ public class Controller {
             }
         }
         if(!playerDeaths.isEmpty()){
-            deathMessage.append("Human Dead Pieces:\n");
+            deathMessage.append("\nHuman Dead Pieces:\n");
             for (char c : playerDeaths) {
                 deathMessage.append(mapTypeToString(c)).append("\n");
             }

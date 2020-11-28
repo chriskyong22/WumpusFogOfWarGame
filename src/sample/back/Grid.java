@@ -299,8 +299,8 @@ public class Grid {
 
     public void destroyCell(Cell cell1){
         if(cell1.belongToPlayer() == '1'){
-            cell1.reset();
             char type = cell1.getType();
+            cell1.reset();
             switch (type) {
                 case 'W':
                     this.numOfPWumpus--;
@@ -319,8 +319,8 @@ public class Grid {
             }
             playerPieces -= 1;
         }else if(cell1.belongToPlayer() == '2'){
-            cell1.reset();
             char type = cell1.getType();
+            cell1.reset();
             switch (type) {
                 case 'W':
                     this.numOfAWumpus--;

@@ -161,7 +161,7 @@ public class Logic {
 
         }else{
             switch (playerMovement) {
-                case '1':
+                case 1:
                     break;
                 default:
                     for(int row = 0; row < map.getMapSize(); row++){

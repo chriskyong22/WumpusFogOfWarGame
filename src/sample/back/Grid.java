@@ -182,7 +182,7 @@ public class Grid {
     public void setPlayerDeadPieces(ArrayList<Character> playerDeadPieces){
         this.playerDeadPieces = playerDeadPieces;
     }
-    
+
     public ArrayList<Cell> getPitLocations() { return this.pitLocations; }
 
     public int getPlayerCount(){

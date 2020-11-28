@@ -666,6 +666,14 @@ public class Logic {
         map.setCell(c2);
     }
 
+    public ArrayList<Character> getAIDeadPieces(){
+        return this.map.getAIDeadPieces();
+    }
+
+    public ArrayList<Character> getPlayerDeadPieces(){
+        return this.map.getPlayerDeadPieces();
+    }
+
     public double averageDistanceToPits(boolean AI) {
         double totalAverageDist = 0;
 

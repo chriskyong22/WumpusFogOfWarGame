@@ -76,6 +76,7 @@ public class Controller {
         aiObsArea.setText("");
         probLabel.setText("");
         deathsArea.setText("");
+        randRadio.selectedProperty().set(true);
         buildGrid(l.render(true));
     }
 

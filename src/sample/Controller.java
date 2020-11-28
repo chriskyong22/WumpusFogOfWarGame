@@ -82,6 +82,16 @@ public class Controller {
     }
     */
 
+    @FXML
+    public void modelSelect(){
+        int playerMovementChoice;
+        if (custRadio.isSelected()) playerMovementChoice = 1;
+        else playerMovementChoice = 0;
+
+        l.calculateRandomMoveProbability(g,false,playerMovementChoice);
+
+    }
+
     /**
      * Builds a grid in the output pane
      * Color Coding:

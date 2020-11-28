@@ -46,6 +46,8 @@ public class Controller {
     private TextArea playerObsArea;
     @FXML
     private TextArea aiObsArea;
+    @FXML
+    private TextArea deathsArea;
 
     Grid g = new Grid();
     Logic l = new Logic(g,3);
@@ -172,6 +174,26 @@ public class Controller {
 
             }
         }
+        StringBuilder deathMessage = new StringBuilder();
+
+        ArrayList<Character> aiDeaths = l.getAIDeadPieces();
+        ArrayList<Character> playerDeaths = l.getPlayerDeadPieces();
+
+        if(!aiDeaths.isEmpty()) {
+            deathMessage = new StringBuilder("AI Dead Pieces:\n");
+            for (char c : aiDeaths) {
+                deathMessage.append(mapTypeToString(c)).append("\n");
+            }
+        }
+        if(!playerDeaths.isEmpty()){
+            deathMessage.append("Human Dead Pieces:\n");
+            for (char c : playerDeaths) {
+                deathMessage.append(mapTypeToString(c)).append("\n");
+            }
+        }
+        deathsArea.setText(deathMessage.toString());
+        //System.out.println(aiDeaths.size());
+        //System.out.println(playerDeaths.size());
     }
 
 
@@ -330,6 +352,12 @@ public class Controller {
                 return "Stench";
             case 'N':
                 return "Noise";
+            case 'W':
+                return "Wumpus";
+            case 'M':
+                return "Mage";
+            case 'H':
+                return "Hero";
         }
         return "";
     }

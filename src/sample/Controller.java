@@ -72,6 +72,10 @@ public class Controller {
         int dimension = Integer.parseInt(dimField.getText());
         g = new Grid(dimension);
         l = new Logic(g,3);
+        playerObsArea.setText("");
+        aiObsArea.setText("");
+        probLabel.setText("");
+        deathsArea.setText("");
         buildGrid(l.render(true));
     }
 

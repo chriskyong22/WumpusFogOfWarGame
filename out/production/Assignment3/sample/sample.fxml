@@ -76,6 +76,7 @@
                         <RadioButton fx:id="custRadio" mnemonicParsing="false" text="Custom Model" toggleGroup="$movementGroup" />
                      </children>
                   </HBox>
+                  <Button mnemonicParsing="false" onMouseClicked="#modelSelect" text="Select Model" />
                   <HBox alignment="CENTER">
                      <children>
                         <TextArea fx:id="playerObsArea" editable="false" prefHeight="200.0" prefWidth="254.0" text="Player Observations:" />

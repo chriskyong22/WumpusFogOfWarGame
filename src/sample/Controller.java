@@ -89,7 +89,7 @@ public class Controller {
         else playerMovementChoice = 0;
 
         l.calculateRandomMoveProbability(g,false,playerMovementChoice);
-
+        buildGrid(g);
     }
 
     /**

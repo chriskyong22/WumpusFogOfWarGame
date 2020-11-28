@@ -316,6 +316,15 @@ public class Logic {
                 if(pitProb > 1){
                     pitProb = 1;
                 }
+                if(this.map.getNumOfPWumpus() == 0){
+                    wumpusProb = 0;
+                }
+                if(this.map.getNumOfPHero() == 0){
+                    heroProb = 0;
+                }
+                if(this.map.getNumOfPMage() == 0){
+                    mageProb = 0;
+                }
                 fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
                 fogOfWar.getCell(row, col).setHeroProb(heroProb);
                 fogOfWar.getCell(row, col).setMageProb(mageProb);
@@ -518,7 +527,7 @@ public class Logic {
             }
         }
 
-        /*
+
         int playerPiece = map.getPlayerCount();
         int totalCells = map.getMapSize() * map.getMapSize();
         int occupiedCells = map.getAICount() + map.getPlayerCount() + ((map.getMapSize() - 2) * map.getPitsPerRow());
@@ -540,10 +549,9 @@ public class Logic {
         int value = (playerPiece - playerPcsExamined);
         observeProb *= (factorial(numOfEmptyCells) / factorial(numOfEmptyCells - value));
         observeProb /= (factorial(totalCells) / factorial(totalCells - occupiedCells));
-        System.out.println("[DEBUG] Observe Prob: " + observeProb);
         return observeProb;
-        */
 
+        /*
         ArrayList<Double> summations = new ArrayList<Double>();
         for(Cell observation : observations){
             double pieceObservationProbability = 0;
@@ -592,7 +600,7 @@ public class Logic {
             ObservationProbability *= value;
         }
         return ObservationProbability;
-
+        */
     }
 
     /**

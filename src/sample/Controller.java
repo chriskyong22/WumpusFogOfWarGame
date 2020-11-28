@@ -87,9 +87,9 @@ public class Controller {
         int playerMovementChoice;
         if (custRadio.isSelected()) playerMovementChoice = 1;
         else playerMovementChoice = 0;
-
-        l.calculateRandomMoveProbability(g,false,playerMovementChoice);
-        buildGrid(g);
+        Grid fog = l.render(true);
+        l.calculateRandomMoveProbability(fog,false,playerMovementChoice);
+        buildGrid(fog);
     }
 
     /**

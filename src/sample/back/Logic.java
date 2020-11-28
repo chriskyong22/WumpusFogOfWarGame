@@ -386,6 +386,7 @@ public class Logic {
         int mageLeft = map.getNumOfPWumpus();
         int pitLeft = map.getMapSize() - 2;
 
+        /*
         double totalMageProb = 0;
         double totalHeroProb = 0;
         double totalWumpusProb = 0;
@@ -401,7 +402,7 @@ public class Logic {
                 totalPitProb += map.getCell(r,c).getPitProb();
             }
         }
-
+        */
         if(containWumpus){
             Grid copy = new Grid(map);
             for(int r = 0; r < map.getMapSize(); r++){
@@ -414,9 +415,14 @@ public class Logic {
                         continue;
                     }
                     double wumpusProb = wumpusLeft == 0 ? 0 : map.getCell(r, c).getWumpusProb() * ((double) (wumpusLeft - 1)/wumpusLeft);
+                    double heroProb = map.getCell(r,c).getHeroProb() * (1-map.getCell(r,c).getHeroProb());
+                    double mageProb = map.getCell(r,c).getMageProb() * (1-map.getCell(r,c).getMageProb());
+                    double pitProb =  map.getCell(r,c).getPitProb() * (1-map.getCell(r,c).getPitProb());
+                    /*
                     double heroProb = heroLeft * (map.getCell(r,c).getHeroProb() / totalHeroProb);
                     double mageProb = mageLeft * (map.getCell(r,c).getMageProb() / totalMageProb);
                     double pitProb = pitLeft * (map.getCell(r,c).getPitProb() / totalPitProb);
+                     */
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);
                     copy.getCell(r, c).setMageProb(mageProb);
@@ -436,10 +442,16 @@ public class Logic {
                         copy.getCell(r, c).setPitProb(0);
                         continue;
                     }
-                    double wumpusProb = wumpusLeft * (map.getCell(r,c).getWumpusProb() / totalWumpusProb);
+                    double wumpusProb = map.getCell(r,c).getWumpusProb() * (1-map.getCell(r,c).getWumpusProb());
                     double heroProb = heroLeft == 0 ? 0 : map.getCell(r, c).getHeroProb() * ((double) (heroLeft - 1)/heroLeft);
+                    double mageProb = map.getCell(r,c).getMageProb() * (1-map.getCell(r,c).getMageProb());
+                    double pitProb =  map.getCell(r,c).getPitProb() * (1-map.getCell(r,c).getPitProb());
+
+                    /*
+                    double wumpusProb = wumpusLeft * (map.getCell(r,c).getWumpusProb() / totalWumpusProb);
                     double mageProb = mageLeft * (map.getCell(r,c).getMageProb() / totalMageProb);
                     double pitProb = pitLeft * (map.getCell(r,c).getPitProb() / totalPitProb);
+                     */
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);
                     copy.getCell(r, c).setMageProb(mageProb);
@@ -459,10 +471,16 @@ public class Logic {
                         copy.getCell(r, c).setPitProb(0);
                         continue;
                     }
+                    double wumpusProb = map.getCell(r,c).getWumpusProb() * (1-map.getCell(r,c).getWumpusProb());
+                    double heroProb = map.getCell(r,c).getHeroProb() * (1-map.getCell(r,c).getHeroProb());
+                    double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * ((double) (mageLeft - 1)/mageLeft);
+                    double pitProb =  map.getCell(r,c).getPitProb() * (1-map.getCell(r,c).getPitProb());
+                    /*
                     double wumpusProb = wumpusLeft * (map.getCell(r,c).getWumpusProb() / totalWumpusProb);
                     double heroProb = heroLeft * (map.getCell(r,c).getHeroProb() / totalHeroProb);
                     double mageProb = mageLeft == 0 ? 0 : map.getCell(r, c).getMageProb() * ((double) (mageLeft - 1)/mageLeft);
                     double pitProb = pitLeft * (map.getCell(r,c).getPitProb() / totalPitProb);
+                     */
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);
                     copy.getCell(r, c).setMageProb(mageProb);
@@ -482,11 +500,16 @@ public class Logic {
                         copy.getCell(r, c).setPitProb(1);
                         continue;
                     }
+                    double wumpusProb = map.getCell(r,c).getWumpusProb() * (1-map.getCell(r,c).getWumpusProb());
+                    double heroProb = map.getCell(r,c).getHeroProb() * (1-map.getCell(r,c).getHeroProb());
+                    double mageProb = map.getCell(r,c).getMageProb() * (1-map.getCell(r,c).getMageProb());
+                    double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * ((double) (pitLeft - 1)/pitLeft);
+                    /*
                     double wumpusProb = wumpusLeft * (map.getCell(r,c).getWumpusProb() / totalWumpusProb);
                     double heroProb = heroLeft * (map.getCell(r,c).getHeroProb() / totalHeroProb);
                     double mageProb = mageLeft * (map.getCell(r,c).getMageProb() / totalMageProb);
                     double pitProb = pitLeft == 0 ? 0 : map.getCell(r, c).getPitProb() * ((double) (pitLeft - 1)/pitLeft);
-
+                    */
                     copy.getCell(r, c).setWumpusProb(wumpusProb);
                     copy.getCell(r, c).setHeroProb(heroProb);
                     copy.getCell(r, c).setMageProb(mageProb);

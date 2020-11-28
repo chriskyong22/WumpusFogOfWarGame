@@ -1,5 +1,6 @@
 package sample.back;
 
+import java.nio.charset.CharacterCodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -13,7 +14,8 @@ public class Grid {
     private int numOfPWumpus;
     private int numOfPHero;
     private int numOfPMage;
-
+    private ArrayList<Character> playerDeadPieces;
+    private ArrayList<Character> aiDeadPieces;
     private int numOfAWumpus;
     private int numOfAHero;
     private int numOfAMage;
@@ -66,6 +68,7 @@ public class Grid {
     }
 
     public Grid(Grid copy){
+
         this.gridSize = copy.getMapSize();
         this.pitsPerRow = copy.getPitsPerRow();
         this.aiPieces = copy.getAICount();
@@ -81,6 +84,9 @@ public class Grid {
 
         this.pitLocations = new ArrayList<Cell>();
         this.pitLocations.addAll(copy.getPitLocations());
+
+        this.aiDeadPieces = copy.getAIDeadPieces();
+        this.playerDeadPieces = copy.getPlayerDeadPieces();
 
         this.map = new Cell[gridSize][gridSize];
         for(int row = 0; row < gridSize; row++){
@@ -161,6 +167,22 @@ public class Grid {
     public void setNumOfAHero(int hero) { this.numOfAHero = hero; }
     public void setNumOfAMage(int mage) { this.numOfAMage = mage; }
 
+    public ArrayList<Character> getAIDeadPieces(){
+        return this.aiDeadPieces;
+    }
+
+    public ArrayList<Character> getPlayerDeadPieces(){
+        return this.playerDeadPieces;
+    }
+
+    public void setAIDeadPieces(ArrayList<Character> aiDeadPieces){
+        this.aiDeadPieces = aiDeadPieces;
+    }
+
+    public void setPlayerDeadPieces(ArrayList<Character> playerDeadPieces){
+        this.playerDeadPieces = playerDeadPieces;
+    }
+    
     public ArrayList<Cell> getPitLocations() { return this.pitLocations; }
 
     public int getPlayerCount(){
@@ -170,6 +192,8 @@ public class Grid {
     public int getAICount(){
         return aiPieces;
     }
+
+
 
     public Cell getCell(int row, int col){
         return map[row][col];
@@ -272,12 +296,15 @@ public class Grid {
             switch (type) {
                 case 'W':
                     this.numOfPWumpus--;
+                    playerDeadPieces.add('W');
                     break;
                 case 'H':
                     this.numOfPHero--;
+                    playerDeadPieces.add('H');
                     break;
                 case 'M':
                     this.numOfPMage--;
+                    playerDeadPieces.add('M');
                     break;
                 default:
                     System.out.println("Trying to destroy some invalid type! " + type);
@@ -289,12 +316,15 @@ public class Grid {
             switch (type) {
                 case 'W':
                     this.numOfAWumpus--;
+                    aiDeadPieces.add('W');
                     break;
                 case 'H':
                     this.numOfAHero--;
+                    aiDeadPieces.add('H');
                     break;
                 case 'M':
                     this.numOfAMage--;
+                    aiDeadPieces.add('M');
                     break;
                 default:
                     System.out.println("Trying to destroy some invalid type! " + type);

@@ -32,6 +32,10 @@ public class Grid {
         this.numOfAHero = (gridSize/3);
         this.numOfAMage = (gridSize/3);
 
+        this.playerDeadPieces = new ArrayList<Character>();
+        this.aiDeadPieces = new ArrayList<Character>();
+
+
         this.pitLocations = new ArrayList<Cell>();
         initializeMap();
     }
@@ -46,6 +50,8 @@ public class Grid {
         this.numOfAHero = (gridSize/3);
         this.numOfAMage = (gridSize/3);
         this.pitLocations = new ArrayList<Cell>();
+        this.playerDeadPieces = new ArrayList<Character>();
+        this.aiDeadPieces = new ArrayList<Character>();
         initializeMap();
     }
 
@@ -65,6 +71,8 @@ public class Grid {
             }
         }
         this.pitLocations = new ArrayList<Cell>();
+        this.playerDeadPieces = new ArrayList<Character>();
+        this.aiDeadPieces = new ArrayList<Character>();
     }
 
     public Grid(Grid copy){

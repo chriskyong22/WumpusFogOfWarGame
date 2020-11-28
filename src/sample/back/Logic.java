@@ -150,6 +150,39 @@ public class Logic {
         return value;
     }
 
+    private double getWeightedDistanceForPlayerMove(int r, int c, char playerPiece, char aiPiece) {
+        // base cases, check if player has this piece
+        if (playerPiece == 'W' && map.getNumOfPWumpus() == 0)
+            return 0;
+        if (playerPiece == 'H' && map.getNumOfPHero() == 0)
+            return 0;
+        if (playerPiece == 'M' && map.getNumOfPMage() == 0)
+            return 0;
+
+        // base cases, check if AI has an enemy that player can kill
+        if (playerPiece == 'W' && map.getNumOfAMage() == 0)
+            return 1;
+        if (playerPiece == 'H' && map.getNumOfAWumpus() == 0)
+            return 1;
+        if (playerPiece == 'M' && map.getNumOfAHero() == 0)
+            return 1;
+
+        // if we did not return yet, that means if the player has playerPiece at this cell, there is a killable enemy piece somewhere
+        // lets find the minimum distance to that piece
+        double minDist = Double.MAX_VALUE;
+        for (int row = 0; row < map.getMapSize(); row++) {
+            for (int col = 0; col < map.getMapSize(); col++) {
+                Cell curCell = map.getCell(row, col);
+                if (curCell.belongToPlayer() == '2' && curCell.getType() == aiPiece) {
+                    minDist = Math.min(minDist, Math.sqrt((r-row)*(r-row) + (c-col)*(c-col)));
+                }
+            }
+        }
+
+        double maxDistanceInBoard = map.getMapSize() * Math.sqrt(2);
+        return 1 - (minDist / maxDistanceInBoard);
+    }
+
     /**
      * Part 2 of the project (Before the observations are made, calculate and set the probabilities of the opponent's move choices)
      * @param fogOfWar
@@ -162,6 +195,22 @@ public class Logic {
         }else{
             switch (playerMovement) {
                 case 1:
+                    for(int row = 0; row < map.getMapSize(); row++){
+                        for(int col = 0; col < map.getMapSize(); col++){
+                            int playerPieces = map.getPlayerCount();
+                            double[] neighborMovingProbability = neighborMovingProbability(row, col, isPlayer);
+                            double wumpusWeight = getWeightedDistanceForPlayerMove(row, col, 'W', 'M');
+                            double heroWeight = getWeightedDistanceForPlayerMove(row, col, 'H', 'W');
+                            double mageWeight = getWeightedDistanceForPlayerMove(row, col, 'M', 'H');
+                            double wumpusProb = wumpusWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0]);
+                            double heroProb = heroWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1]);
+                            double mageProb = mageWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) + neighborMovingProbability[2]);
+                            fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
+                            fogOfWar.getCell(row, col).setHeroProb(heroProb);
+                            fogOfWar.getCell(row, col).setMageProb(mageProb);
+                            fogOfWar.getCell(row, col).setPitProb(map.getCell(row, col).getPitProb());
+                        }
+                    }
                     break;
                 default:
                     for(int row = 0; row < map.getMapSize(); row++){

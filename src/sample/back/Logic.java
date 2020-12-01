@@ -331,6 +331,20 @@ public class Logic {
                 fogOfWar.getCell(row, col).setPitProb(pitProb);
             }
         }
+         int pitProbEqualZero = 0;
+        for(int row = 1; row < map.getMapSize() - 1; row++){
+            pitProbEqualZero = 0;
+            for(int col = 0; col < map.getMapSize(); col++) {
+                if(fogOfWar.getCell(row, col).getPitProb() == 0){
+                    pitProbEqualZero++;
+                }
+            }
+            for(int col = 0; col < map.getMapSize(); col++) {
+                if (fogOfWar.getCell(row, col).getPitProb() > 0) {
+                    fogOfWar.getCell(row, col).setPitProb((double)1 / (map.getMapSize()-pitProbEqualZero));
+                }
+            }
+        }
     }
 
     public double[] getObservationGivenPiece(int row, int col, ArrayList<Cell> observations, ArrayList<Cell> pieces, Grid fogOfWar){

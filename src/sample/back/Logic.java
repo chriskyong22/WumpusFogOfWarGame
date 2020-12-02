@@ -195,6 +195,9 @@ public class Logic {
         }else{
             switch (playerMovement) {
                 case 1:
+                    double totalWumpusProb = 0;
+                    double totalHeroProb = 0;
+                    double totalMageProb = 0;
                     for(int row = 0; row < map.getMapSize(); row++){
                         for(int col = 0; col < map.getMapSize(); col++){
                             int playerPieces = map.getPlayerCount();
@@ -209,6 +212,17 @@ public class Logic {
                             fogOfWar.getCell(row, col).setHeroProb(heroProb);
                             fogOfWar.getCell(row, col).setMageProb(mageProb);
                             fogOfWar.getCell(row, col).setPitProb(map.getCell(row, col).getPitProb());
+                            totalWumpusProb += wumpusProb;
+                            totalHeroProb += heroProb;
+                            totalMageProb += mageProb;
+                        }
+                    }
+                    // normalize the probability distribution
+                    for(int row = 0; row < map.getMapSize(); row++){
+                        for(int col = 0; col < map.getMapSize(); col++){
+                            fogOfWar.getCell(row, col).setWumpusProb(fogOfWar.getCell(row, col).getWumpusProb()/totalWumpusProb);
+                            fogOfWar.getCell(row, col).setHeroProb(fogOfWar.getCell(row, col).getHeroProb()/totalHeroProb);
+                            fogOfWar.getCell(row, col).setMageProb(fogOfWar.getCell(row, col).getMageProb()/totalMageProb);
                         }
                     }
                     break;

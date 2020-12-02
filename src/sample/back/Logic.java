@@ -205,9 +205,9 @@ public class Logic {
                             double wumpusWeight = getWeightedDistanceForPlayerMove(row, col, 'W', 'M');
                             double heroWeight = getWeightedDistanceForPlayerMove(row, col, 'H', 'W');
                             double mageWeight = getWeightedDistanceForPlayerMove(row, col, 'M', 'H');
-                            double wumpusProb = wumpusWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0]);
-                            double heroProb = heroWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1]);
-                            double mageProb = mageWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) + neighborMovingProbability[2]);
+                            double wumpusProb = (row+1)*wumpusWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getWumpusProb()) + neighborMovingProbability[0]);
+                            double heroProb = (row+1)*heroWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getHeroProb()) + neighborMovingProbability[1]);
+                            double mageProb = (row+1)*mageWeight * (((1 - (1.0/playerPieces)) * map.getCell(row, col).getMageProb()) + neighborMovingProbability[2]);
                             fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
                             fogOfWar.getCell(row, col).setHeroProb(heroProb);
                             fogOfWar.getCell(row, col).setMageProb(mageProb);

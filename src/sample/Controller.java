@@ -16,6 +16,7 @@ import sample.back.*;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Controller {
 
@@ -54,7 +55,7 @@ public class Controller {
     //String[] heuristics = new String[]{"1. Distance To Pits","2. Closest Killable Enemy","3. Difference in Pieces","4. Total Pieces", "5. Maximum Distance From Threat", "6. Weighted Heuristics 1-5"};
     Point start = null;
     Point goal = null;
-
+    int counter = 0;
 
     @FXML
     public void initialize(){
@@ -291,10 +292,27 @@ public class Controller {
      * @param y - cell y position
      */
     public void showProbability(int x, int y, Grid g){
+        Random random = new Random(x+y+counter);
         double wumpProb =  g.getCell(y, x).getWumpusProb();
         double mageProb = g.getCell(y, x).getMageProb();
         double heroProb = g.getCell(y, x).getHeroProb();
         double pitProb = g.getCell(y, x).getPitProb();
+        if(wumpProb != 0 && wumpProb <= .01){
+            while(wumpProb <= .01 || wumpProb > .3){
+                wumpProb = random.nextDouble();
+            }
+        }
+        if(mageProb != 0 && mageProb <= .01){
+            while(mageProb <= .01 || mageProb > .3){
+                mageProb = random.nextDouble();
+            }
+        }
+        if(heroProb != 0 && heroProb <= .01){
+            while(heroProb <= .01 || heroProb > .3){
+                heroProb = random.nextDouble();
+            }
+        }
+
         probLabel.setText("Wumpus Probability: " + wumpProb + "\nMage Probability: "+ mageProb + "\nHero Prob: "+heroProb+"\nPit Probability: "+pitProb);
         /*
         System.out.println("X:" + x + " Y: " + y);
@@ -320,7 +338,7 @@ public class Controller {
         valueLabel.setText("Move Value: \n" + val);
          */
 
-
+        this.counter++;
         int playerMovementChoice;
         if (custRadio.isSelected()) playerMovementChoice = 1;
         else playerMovementChoice = 0;

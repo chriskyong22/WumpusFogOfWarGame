@@ -302,21 +302,21 @@ public class Controller {
         double mageProb = g.getCell(y, x).getMageProb();
         double heroProb = g.getCell(y, x).getHeroProb();
         double pitProb = g.getCell(y, x).getPitProb();
-//        if(wumpProb != 0 && wumpProb <= .01){
-//            while(wumpProb <= .01 || wumpProb > .3){
-//                wumpProb = random.nextDouble();
-//            }
-//        }
-//        if(mageProb != 0 && mageProb <= .01){
-//            while(mageProb <= .01 || mageProb > .3){
-//                mageProb = random.nextDouble();
-//            }
-//        }
-//        if(heroProb != 0 && heroProb <= .01){
-//            while(heroProb <= .01 || heroProb > .3){
-//                heroProb = random.nextDouble();
-//            }
-//        }
+        if(wumpProb != 0 && wumpProb <= .01){
+            while(wumpProb <= .01 || wumpProb > .3){
+                wumpProb = random.nextDouble();
+            }
+        }
+        if(mageProb != 0 && mageProb <= .01){
+            while(mageProb <= .01 || mageProb > .3){
+                mageProb = random.nextDouble();
+            }
+        }
+        if(heroProb != 0 && heroProb <= .01){
+            while(heroProb <= .01 || heroProb > .3){
+              heroProb = random.nextDouble();
+           }
+        }
 
         probLabel.setText("Wumpus Probability: " + wumpProb + "\nMage Probability: "+ mageProb + "\nHero Prob: "+heroProb+"\nPit Probability: "+pitProb);
         /*

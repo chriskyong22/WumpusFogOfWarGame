@@ -90,6 +90,34 @@ public class Cell {
         return this.cellType == 'P';
     }
 
+    public boolean hasSameObservations(Cell cell) {
+        int stench,noise,heat,breeze;
+        stench = 0;
+        noise = 0;
+        heat = 0;
+        breeze = 0;
+
+        if (cell.observations.contains('S'))
+            stench++;
+        if (cell.observations.contains('N'))
+            noise++;
+        if (cell.observations.contains('F'))
+            heat++;
+        if (cell.observations.contains('B'))
+            breeze++;
+
+        if (this.observations.contains('S'))
+            stench--;
+        if (this.observations.contains('N'))
+            noise--;
+        if (this.observations.contains('F'))
+            heat--;
+        if (this.observations.contains('B'))
+            breeze--;
+
+        return stench == 0 && noise == 0 && heat == 0 && breeze == 0;
+    }
+
     public void reset(){
         this.cellType = 'E';
         this.playerPiece = '0';

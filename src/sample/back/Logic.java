@@ -2,6 +2,7 @@ package sample.back;
 
 import javafx.beans.Observable;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,6 +21,9 @@ public class Logic {
         observations = new ArrayList<Cell>();
         initialize();
     }
+    private HashSet<Cell> wumpusLocations;
+    private HashSet<Cell> heroLocations;
+    private HashSet<Cell> mageLocations;
 
 
     /***
@@ -245,6 +249,225 @@ public class Logic {
         }
     }
 
+    public boolean gridHasSameObservations(Grid grid1, Grid grid2) {
+        for (int row = 0; row < map.getMapSize(); row++) {
+            for (int col = 0; col < map.getMapSize(); col++) {
+                if (!grid1.getCell(row,col).hasSameObservations(grid2.getCell(row,col)))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public void setObservations(Grid modified){
+        ArrayList<Cell> AIpieces = modified.getAICells();
+        for(Cell AIpiece : AIpieces){
+            int row = AIpiece.getRow();
+            int col = AIpiece.getCol();
+            ArrayList<Cell> neighbors = modified.getNeighbors(row, col);
+            for(Cell neighbor : neighbors){
+                if((neighbor.belongToPlayer() == '1' || neighbor.getType() == 'P')){
+                    char type = neighbor.getType();
+                    switch(type){
+                        case 'P':
+                            if(!modified.getCell(row, col).observations.contains('B')){
+                                modified.getCell(row, col).observations.add('B'); //Breeze
+                            }
+                            break;
+                        case 'W':
+                            if(!modified.getCell(row, col).observations.contains('S')){
+                                modified.getCell(row, col).observations.add('S'); //Stench
+                            }
+                            break;
+                        case 'H':
+                            if(!modified.getCell(row, col).observations.contains('N')){
+                                modified.getCell(row, col).observations.add('N'); //Hero Moving
+                            }
+                            break;
+                        case 'M':
+                            if(!modified.getCell(row, col).observations.contains('F')){
+                                modified.getCell(row, col).observations.add('F'); //Fire Magic
+                            }
+                            break;
+                        default:
+                            System.out.println("An error occurred when setting the observations!");
+                    }
+                }
+            }
+        }
+    }
+
+    public Grid onlyAiPiecesAndPits() {
+        Grid onlyAIPiecesAndPits = new Grid(this.map.getMapSize(), true);
+        for(int row = 0; row < this.map.getMapSize(); row++){
+            for(int col = 0; col < this.map.getMapSize(); col++){
+                if(map.getCell(row, col).getType() == 'P'){
+                    onlyAIPiecesAndPits.getCell(row, col).setType('P');
+                }else if(map.getCell(row,col).belongToPlayer() == '2'){
+                    onlyAIPiecesAndPits.getCell(row,col).setType(map.getCell(row, col).getType());
+                    onlyAIPiecesAndPits.getCell(row,col).setPlayerPiece('2');
+                }else{
+                    onlyAIPiecesAndPits.getCell(row,col).setType('E');
+                }
+            }
+        }
+        return onlyAIPiecesAndPits;
+    }
+
+    public ArrayList<Character> listOfPlayerPieces(){
+        ArrayList<Character> playerPieces = new ArrayList<Character>();
+        int counter = this.map.getNumOfPWumpus();
+        while(counter != 0){
+            counter--;
+            playerPieces.add('W');
+        }
+        counter = this.map.getNumOfPHero();
+        while(counter != 0){
+            counter--;
+            playerPieces.add('H');
+        }
+        counter = this.map.getNumOfPMage();
+        while(counter != 0){
+            counter--;
+            playerPieces.add('M');
+        }
+        return playerPieces;
+    }
+
+    public void getPossibleLocations(){
+        HashSet<Cell> wumpusLocation=new HashSet();
+        HashSet<Cell> heroLocation=new HashSet();
+        HashSet<Cell> mageLocation=new HashSet();
+
+        for(Cell observationCell : this.observations){
+            ArrayList<Cell> neighbors = this.map.getNeighbors(observationCell.getRow(), observationCell.getCol());
+
+            neighbors.removeIf(neighbor -> neighbor.getType() == 'P');
+
+
+            for(char observation : observationCell.observations){
+                switch (observation) {
+                    case 'S':
+                        wumpusLocation.addAll(neighbors);
+                        break;
+                    case 'N':
+                        heroLocation.addAll(neighbors);
+                        break;
+                    case 'F':
+                        mageLocation.addAll(neighbors);
+                        break;
+                    case 'B':
+                        break;
+                    default:
+                        System.out.println("[DEBUG] Observations for possible locations is wrong");
+                }
+            }
+        }
+
+        this.wumpusLocations = wumpusLocation;
+        this.heroLocations = heroLocation;
+        this.mageLocations = mageLocation;
+    }
+    
+
+    // player pieces has to be of the form ['W', 'W', 'H', 'M'] if the player has 2 wumpus, 1 hero, 1 mage alive. order doesnt matter
+    public ArrayList<Grid> getAllObservationStates(Grid curGrid, ArrayList<Grid> states, int r, int c, ArrayList<Character> playerPieces,
+                                                   ArrayList<Cell> posWumpus, ArrayList<Cell> posHero, ArrayList<Cell> posMage) {
+          if (playerPieces.isEmpty()) {
+              Grid gameBoard = new Grid(this.map);
+              setObservations(curGrid);
+              setObservations(gameBoard);
+              if (gridHasSameObservations(curGrid, gameBoard)) {
+                  states.add(new Grid(curGrid));
+              }
+          } else {
+              for (Character piece : playerPieces) {
+                  for (int row = r; row < map.getMapSize(); row++) {
+                      for (int col = c; col < map.getMapSize(); col++) {
+                          if (curGrid.getCell(row,col).getType() == 'E') {
+                              Grid curGridCopy = new Grid(curGrid);
+                              curGridCopy.getCell(row,col).setType(piece);
+                              curGridCopy.getCell(row, col).setPlayerPiece('1');
+                              ArrayList<Character> playerPiecesCopy = new ArrayList<>(playerPieces);
+                              playerPiecesCopy.remove(playerPiecesCopy.indexOf(piece));
+                              ArrayList<Cell> copyPosWumpus = new ArrayList<Cell>(posWumpus);
+                              ArrayList<Cell> copyPosHero = new ArrayList<Cell>(posHero);
+                              ArrayList<Cell> copyPosMage = new ArrayList<Cell>(posMage);
+
+                              if (piece.equals('W')) {
+                                  copyPosWumpus.add(curGridCopy.getCell(row,col));
+                              } else if (piece.equals('H')) {
+                                  copyPosHero.add(curGridCopy.getCell(row,col));
+                              } else if (piece.equals('M')) {
+                                  copyPosMage.add(curGridCopy.getCell(row,col));
+                              }
+
+                              int w, h, m;
+                              w = 0;
+                              h = 0;
+                              m = 0;
+                              for (Character ch : playerPiecesCopy) {
+                                  if (ch.equals('W'))
+                                      w++;
+                                  else if (ch.equals('H'))
+                                      h++;
+                                  else if (ch.equals('M'))
+                                      m++;
+                              }
+                              if (w == 0) {
+                                  boolean wValid = false;
+                                  if (this.wumpusLocations.isEmpty())
+                                      wValid = true;
+                                  for (Cell pos : copyPosWumpus) {
+                                      if (this.wumpusLocations.contains(pos))
+                                          wValid = true;
+                                  }
+                                  if (!wValid)
+                                      continue;
+                              }
+                              if (h == 0) {
+                                  boolean hValid = false;
+                                  if (this.heroLocations.isEmpty())
+                                      hValid = true;
+                                  for (Cell pos : copyPosHero) {
+                                      if (this.heroLocations.contains(pos))
+                                          hValid = true;
+                                  }
+                                  if (!hValid)
+                                      continue;
+                              }
+                              if (m == 0) {
+                                  boolean mValid = false;
+                                  if (this.mageLocations.isEmpty())
+                                      mValid = true;
+                                  for (Cell pos : copyPosMage) {
+                                      if (this.mageLocations.contains(pos))
+                                          mValid = true;
+                                  }
+                                  if (!mValid)
+                                      continue;
+                              }
+
+                              //find next starting position
+                              int _r, _c;
+                              if (col + 1 < map.getMapSize()) {
+                                  _r = r;
+                                  _c = c+1;
+                              } else {
+                                  _r = r+1;
+                                  _c = 0;
+                              }
+
+                              //recursive call
+                              getAllObservationStates(curGridCopy, states, _r, _c, playerPiecesCopy, copyPosWumpus, copyPosHero, copyPosMage);
+                          }
+                      }
+                  }
+              }
+          }
+          return states;
+    }
+
     public Grid generateObservations(boolean isPlayer){
         Grid fogOfWar = new Grid(map.getMapSize(), true);
         fogOfWar.setAIPieces(map.getAICount());
@@ -263,13 +486,13 @@ public class Logic {
                 }
             }
             this.observations = setObservations(positions, fogOfWar, true);
-        }else{
-            for(int row = 0; row < map.getMapSize(); row++){
-                for(int col = 0; col < map.getMapSize(); col++){
-                    if(map.getCell(row, col).belongToPlayer() == '2'){
+        }else {
+            for (int row = 0; row < map.getMapSize(); row++) {
+                for (int col = 0; col < map.getMapSize(); col++) {
+                    if (map.getCell(row, col).belongToPlayer() == '2') {
                         positions.add(map.getCell(row, col));
                         fogOfWar.setCell(map.getCell(row, col));
-                    }else{
+                    } else {
                         fogOfWar.getCell(row, col).setType('?');
                     }
                     fogOfWar.setProbability(map.getCell(row, col), row, col);
@@ -278,6 +501,9 @@ public class Logic {
             this.observations = setObservations(positions, fogOfWar, false);
             calculateObservationProbability(fogOfWar, this.observations, positions);
         }
+        getPossibleLocations();
+        ArrayList<Grid> observedStates = getAllObservationStates(onlyAiPiecesAndPits(), new ArrayList<Grid>(), 0, 0, listOfPlayerPieces(),
+                new ArrayList<Cell>(), new ArrayList<Cell>(), new ArrayList<Cell>());
         return fogOfWar;
     }
 
@@ -359,6 +585,16 @@ public class Logic {
                 }
             }
         }
+    }
+
+    public Grid AIObservation(int playerMovement){
+        Grid oldMap = new Grid(map);
+
+        calculateRandomMoveProbability(map, false, playerMovement);
+        Grid fogOfWar = generateObservations(false);
+
+        updateStateProbabilities(oldMap);
+        return fogOfWar;
     }
 
     public double[] getObservationGivenPiece(int row, int col, ArrayList<Cell> observations, ArrayList<Cell> pieces, Grid fogOfWar){

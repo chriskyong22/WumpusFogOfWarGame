@@ -168,4 +168,13 @@ public class Cell {
         return (this.row == ((Cell) other).getRow() && this.col == ((Cell) other).getCol());
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + row;
+        result = prime * result + col;
+        return result;
+    }
+
 }

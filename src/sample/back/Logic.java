@@ -343,7 +343,7 @@ public class Logic {
             ArrayList<Cell> neighbors = this.map.getNeighbors(observationCell.getRow(), observationCell.getCol());
 
             neighbors.removeIf(neighbor -> neighbor.getType() == 'P');
-
+            neighbors.removeIf(neighbor -> neighbor.belongToPlayer() == '2');
 
             for(char observation : observationCell.observations){
                 switch (observation) {
@@ -501,9 +501,8 @@ public class Logic {
             this.observations = setObservations(positions, fogOfWar, false);
             calculateObservationProbability(fogOfWar, this.observations, positions);
         }
-        getPossibleLocations();
-        ArrayList<Grid> observedStates = getAllObservationStates(onlyAiPiecesAndPits(), new ArrayList<Grid>(), 0, 0, listOfPlayerPieces(),
-                new ArrayList<Cell>(), new ArrayList<Cell>(), new ArrayList<Cell>());
+       // getPossibleLocations();
+       // ArrayList<Grid> observedStates = getAllObservationStates(onlyAiPiecesAndPits(), new ArrayList<Grid>(), 0, 0, listOfPlayerPieces(), new ArrayList<Cell>(), new ArrayList<Cell>(), new ArrayList<Cell>());
         return fogOfWar;
     }
 

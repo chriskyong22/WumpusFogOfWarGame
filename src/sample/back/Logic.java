@@ -521,12 +521,12 @@ public class Logic {
         return probabilities;
     }
 
-    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces){
+    public void calculateObservationProbability(Grid fogOfWar, ArrayList<Cell> observations, ArrayList<Cell> pieces) {
         double observationProbability = calculateFullObservationProbability(this.map, observations, pieces);
-         for(int row = 0; row < map.getMapSize(); row++){
-            for(int col = 0; col < map.getMapSize(); col++){
+        for (int row = 0; row < map.getMapSize(); row++) {
+            for (int col = 0; col < map.getMapSize(); col++) {
                 Cell temp = map.getCell(row, col);
-                if(pieces.contains(temp)){ // If the cell is an AI piece, obviously no chance for wumpus/hero/mage/pit
+                if (pieces.contains(temp)) { // If the cell is an AI piece, obviously no chance for wumpus/hero/mage/pit
                     fogOfWar.getCell(row, col).setWumpusProb(0);
                     fogOfWar.getCell(row, col).setHeroProb(0);
                     fogOfWar.getCell(row, col).setMageProb(0);
@@ -535,7 +535,7 @@ public class Logic {
                 }
                 double[] probabilities = getCurrentProbabilities(row, col);
                 double[] observationGivenPiece = getObservationGivenPiece(row, col, observations, pieces, fogOfWar);
-                if(observationProbability == 0){
+                if (observationProbability == 0) {
                     System.out.println("ERROR");
                 }
                 double wumpusProb = (probabilities[0] * observationGivenPiece[0]) / observationProbability;
@@ -543,25 +543,25 @@ public class Logic {
                 double mageProb = (probabilities[2] * observationGivenPiece[2]) / observationProbability;
                 double pitProb = (probabilities[3] * observationGivenPiece[3]) / observationProbability;
 
-                if(wumpusProb > 1){
+                if (wumpusProb > 1) {
                     wumpusProb = 1;
                 }
-                if(heroProb > 1){
+                if (heroProb > 1) {
                     heroProb = 1;
                 }
-                if(mageProb > 1){
+                if (mageProb > 1) {
                     mageProb = 1;
                 }
-                if(pitProb > 1){
+                if (pitProb > 1) {
                     pitProb = 1;
                 }
-                if(this.map.getNumOfPWumpus() == 0){
+                if (this.map.getNumOfPWumpus() == 0) {
                     wumpusProb = 0;
                 }
-                if(this.map.getNumOfPHero() == 0){
+                if (this.map.getNumOfPHero() == 0) {
                     heroProb = 0;
                 }
-                if(this.map.getNumOfPMage() == 0){
+                if (this.map.getNumOfPMage() == 0) {
                     mageProb = 0;
                 }
                 fogOfWar.getCell(row, col).setWumpusProb(wumpusProb);
@@ -570,19 +570,79 @@ public class Logic {
                 fogOfWar.getCell(row, col).setPitProb(pitProb);
             }
         }
-         int pitProbEqualZero = 0;
-        for(int row = 1; row < map.getMapSize() - 1; row++){
+        int pitProbEqualZero = 0;
+        for (int row = 1; row < map.getMapSize() - 1; row++) {
             pitProbEqualZero = 0;
-            for(int col = 0; col < map.getMapSize(); col++) {
-                if(fogOfWar.getCell(row, col).getPitProb() == 0){
+            for (int col = 0; col < map.getMapSize(); col++) {
+                if (fogOfWar.getCell(row, col).getPitProb() == 0) {
                     pitProbEqualZero++;
                 }
             }
-            for(int col = 0; col < map.getMapSize(); col++) {
+            for (int col = 0; col < map.getMapSize(); col++) {
                 if (fogOfWar.getCell(row, col).getPitProb() > 0) {
-                    fogOfWar.getCell(row, col).setPitProb((double)1 / (map.getMapSize()-pitProbEqualZero));
+                    fogOfWar.getCell(row, col).setPitProb((double) 1 / (map.getMapSize() - pitProbEqualZero));
                 }
             }
+        }
+        if(map.getMapSize() == 3){
+            ArrayList<Cell> observes = new ArrayList<Cell>();
+            ArrayList<Character> observe = new ArrayList<Character>();
+            for(Cell observationCell : observations){
+                observes.addAll(fogOfWar.getNeighbors(observationCell.getRow(), observationCell.getCol()));
+                for(int row = 0; row <map.getMapSize(); row++){
+                    for(int col = 0; col < map.getMapSize(); col++){
+                        Cell temp = fogOfWar.getCell(row, col);
+                        if (pieces.contains(temp)) { // If the cell is an AI piece, obviously no chance for wumpus/hero/mage/pit
+                            continue;
+                        }
+                        if(!observes.contains(temp)){
+                            for(char observation : observationCell.observations){
+                                switch(observation) {
+                                    case 'S':
+                                        fogOfWar.getCell(row, col).setWumpusProb(0);
+                                        break;
+                                    case 'N':
+                                        fogOfWar.getCell(row, col).setHeroProb(0);
+                                        break;
+                                    case 'F':
+                                        fogOfWar.getCell(row, col).setMageProb(0);
+                                        break;
+                                }
+                                observe.add(observation);
+                            }
+                        }
+                    }
+                }
+                observes.clear();
+            }
+            for(int row = 0; row < map.getMapSize(); row++){
+                for(int col = 0; col < map.getMapSize(); col++){
+                    Cell temp = fogOfWar.getCell(row, col);
+                    if(pieces.contains(temp)){
+                        continue;
+                    }
+                    for(char c : observe){
+                        switch (c){
+                            case 'S':
+                                if(fogOfWar.getCell(row, col).getWumpusProb() > 0) {
+                                    fogOfWar.getCell(row, col).setWumpusProb(1);
+                                }
+                                break;
+                            case 'N':
+                                if(fogOfWar.getCell(row, col).getHeroProb() > 0) {
+                                    fogOfWar.getCell(row, col).setHeroProb(1);
+                                }
+                                break;
+                            case 'F':
+                                if(fogOfWar.getCell(row, col).getMageProb() > 0) {
+                                    fogOfWar.getCell(row, col).setMageProb(1);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+
         }
     }
 
